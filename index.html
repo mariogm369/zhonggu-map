@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zhonggu Global Scaling Strategy</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Inter+Tight:wght@600;700&family=Cormorant+Garamond:ital,wght@0,300;1,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #000;
+      --surface: #0a0a0a;
+      --surface2: #111;
+      --border: rgba(255,255,255,0.07);
+      --border2: rgba(255,255,255,0.13);
+      --text-primary: #fff;
+      --text-secondary: #999;
+      --text-muted: #555;
+      --p1: #22c55e;
+      --p1-glow: rgba(34,197,94,0.22);
+      --p2: #eab308;
+      --p2-glow: rgba(234,179,8,0.22);
+      --p3: #3b82f6;
+      --p3-glow: rgba(59,130,246,0.22);
+    }
+
+    html, body { background: var(--bg); color: var(--text-primary); font-family: 'Inter', sans-serif; min-height: 100vh; }
+    body { display: flex; flex-direction: column; align-items: center; padding: 52px 32px 72px; }
+
+    #header { width: 100%; max-width: 1100px; margin-bottom: 30px; text-align: center; }
+    #eyebrow { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 14px; }
+    #main-title { font-family: 'Inter Tight', sans-serif; font-size: 34px; font-weight: 700; letter-spacing: -0.025em; margin-bottom: 11px; line-height: 1.1; }
+    #subtitle { font-size: 14px; color: var(--text-secondary); max-width: 520px; margin: 0 auto; line-height: 1.65; transition: color 0.4s; min-height: 44px; }
+
+    #controls { display: flex; gap: 10px; margin-bottom: 22px; flex-wrap: wrap; justify-content: center; align-items: center; }
+
+    .phase-btn {
+      display: flex; align-items: center; gap: 10px; padding: 11px 28px; border-radius: 100px;
+      font-size: 13px; font-weight: 500; font-family: 'Inter', sans-serif; cursor: pointer;
+      transition: all 0.25s ease; background: var(--surface2); border: 1px solid var(--border2); color: var(--text-secondary);
+      white-space: nowrap;
+    }
+    .phase-btn .btn-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .phase-btn .btn-phase-num { font-weight: 600; color: var(--text-primary); }
+    .phase-btn .btn-sep { color: var(--text-muted); margin: 0 2px; }
+    .phase-btn .btn-desc { color: var(--text-muted); font-weight: 400; font-size: 12px; }
+    .phase-btn:hover .btn-phase-num { color: var(--text-primary); }
+    .phase-btn:hover .btn-desc { color: var(--text-secondary); }
+    .phase-btn:hover { transform: translateY(-1px); }
+    .phase-btn.active { border-color: transparent; transform: translateY(-1px); }
+    .phase-btn.active .btn-phase-num { color: #000; font-weight: 700; }
+    .phase-btn.active .btn-sep { color: rgba(0,0,0,0.35); }
+    .phase-btn.active .btn-desc { color: rgba(0,0,0,0.55); }
+
+    #btn-reset { padding: 11px 22px; border-radius: 100px; font-size: 12px; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.22s; background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
+    #btn-reset:hover { border-color: var(--border2); color: var(--text-secondary); }
+
+    #map-frame {
+      width: 100%; max-width: 1100px; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; overflow: hidden; position: relative;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.03), 0 40px 100px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+
+    #hover-chip {
+      position: absolute; top: 16px; right: 16px; z-index: 20;
+      background: rgba(0,0,0,0.82); backdrop-filter: blur(16px);
+      border: 1px solid var(--border2); border-radius: 10px; padding: 8px 14px; min-width: 155px; pointer-events: none;
+    }
+    #hover-chip-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--text-muted); margin-bottom: 3px; }
+    #hover-chip-name { font-size: 12px; font-weight: 500; color: var(--text-secondary); text-align: right; transition: color 0.2s; }
+
+    #map-svg-wrap { width: 100%; display: block; line-height: 0; }
+    #map-svg-wrap svg { display: block; width: 100%; }
+
+    /* Info card */
+    #info-card {
+      position: absolute; bottom: 20px; left: 20px; z-index: 30;
+      background: rgba(4,4,4,0.94); backdrop-filter: blur(24px);
+      border: 1px solid var(--border2); border-radius: 16px;
+      padding: 20px 22px 18px; min-width: 260px; max-width: 310px; max-height: 70vh; overflow-y: auto;
+      opacity: 0; transform: translateY(10px); pointer-events: none;
+      transition: opacity 0.32s ease, transform 0.32s ease;
+      scrollbar-width: thin; scrollbar-color: #333 transparent;
+    }
+    #info-card::-webkit-scrollbar { width: 3px; }
+    #info-card::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+    #info-card.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+
+    #info-card-close { position: absolute; top: 14px; right: 16px; font-size: 18px; line-height: 1; color: var(--text-muted); cursor: pointer; background: none; border: none; padding: 2px 4px; transition: color 0.15s; }
+    #info-card-close:hover { color: var(--text-secondary); }
+
+    #info-card-phase { font-size: 9px; text-transform: uppercase; letter-spacing: 0.18em; font-weight: 500; margin-bottom: 7px; }
+    #info-card-country { font-family: 'Inter Tight', sans-serif; font-size: 20px; font-weight: 700; color: #fff; letter-spacing: -0.01em; margin-bottom: 5px; padding-right: 24px; }
+    #info-card-approach { font-size: 11px; color: var(--text-muted); font-style: italic; line-height: 1.5; margin-bottom: 14px; }
+    #info-card-divider { height: 1px; background: var(--border); margin-bottom: 14px; }
+    #info-card-ngo-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text-muted); margin-bottom: 10px; }
+    #info-card-ngos { display: flex; flex-direction: column; gap: 0; }
+
+    .ngo-row {
+      display: flex; flex-direction: column; gap: 2px;
+      padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .ngo-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .ngo-row-top { display: flex; align-items: flex-start; gap: 8px; }
+    .ngo-bullet { width: 4px; height: 4px; border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
+    .ngo-name { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 300; font-size: 13.5px; color: rgba(255,255,255,0.8); line-height: 1.4; letter-spacing: 0.01em; }
+    .ngo-focus { font-size: 10px; color: var(--text-muted); line-height: 1.4; padding-left: 12px; }
+    .ngo-link { font-size: 10px; padding-left: 12px; margin-top: 2px; }
+    .ngo-link a { color: rgba(255,255,255,0.3); text-decoration: none; transition: color 0.15s; letter-spacing: 0.01em; }
+    .ngo-link a:hover { color: rgba(255,255,255,0.65); }
+
+    #objective { width: 100%; max-width: 1100px; margin-top: 14px; padding: 14px 20px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); display: flex; align-items: stretch; gap: 14px; transition: border-color 0.35s; min-height: 56px; }
+    #objective-accent { width: 3px; border-radius: 2px; background: var(--border2); flex-shrink: 0; transition: background 0.35s; }
+    #objective-text { font-size: 13px; line-height: 1.7; color: var(--text-muted); transition: color 0.35s; align-self: center; }
+
+    #legend { display: flex; gap: 28px; margin-top: 20px; flex-wrap: wrap; justify-content: center; }
+    .legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-muted); letter-spacing: 0.03em; transition: color 0.25s; }
+    .legend-item.active { color: var(--text-secondary); }
+    .legend-swatch { width: 10px; height: 10px; border-radius: 3px; opacity: 0.45; transition: opacity 0.25s; }
+    .legend-item.active .legend-swatch { opacity: 1; }
+
+    .ngo-annotation { font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-weight: 300; }
+  </style>
+</head>
+<body>
+
+<div id="header">
+  <div id="eyebrow">I Share · Green IT Classrooms Initiative</div>
+  <h1 id="main-title">Zhonggu Global Scaling Strategy</h1>
+  <p id="subtitle">Identifying NGO partners to expand Green IT Classroom coverage across developing and developed markets worldwide.</p>
+</div>
+
+<div id="controls">
+  <button class="phase-btn" id="btn1" onclick="togglePhase(1)">
+    <span class="btn-dot" style="background:var(--p1)"></span>
+    <span class="btn-phase-num">Phase 1</span>
+    <span class="btn-sep">·</span>
+    <span class="btn-desc">Developing countries with friendly legislation</span>
+  </button>
+  <button class="phase-btn" id="btn2" onclick="togglePhase(2)">
+    <span class="btn-dot" style="background:var(--p2)"></span>
+    <span class="btn-phase-num">Phase 2</span>
+    <span class="btn-sep">·</span>
+    <span class="btn-desc">Developing countries with restrictive legislation</span>
+  </button>
+  <button class="phase-btn" id="btn3" onclick="togglePhase(3)">
+    <span class="btn-dot" style="background:var(--p3)"></span>
+    <span class="btn-phase-num">Phase 3</span>
+    <span class="btn-sep">·</span>
+    <span class="btn-desc">Developed countries</span>
+  </button>
+  <button id="btn-reset" onclick="resetAll()">Clear</button>
+</div>
+
+<div id="map-frame">
+  <div id="hover-chip">
+    <div id="hover-chip-label">Country</div>
+    <div id="hover-chip-name">—</div>
+  </div>
+  <div id="info-card">
+    <button id="info-card-close" onclick="closeCard()">×</button>
+    <div id="info-card-phase"></div>
+    <div id="info-card-country"></div>
+    <div id="info-card-approach"></div>
+    <div id="info-card-divider"></div>
+    <div id="info-card-ngo-label">NGO Partners</div>
+    <div id="info-card-ngos"></div>
+  </div>
+  <div id="map-svg-wrap"></div>
+</div>
+
+<div id="objective">
+  <div id="objective-accent"></div>
+  <div id="objective-text">Select a phase above to explore the strategic objective and highlight target countries on the map.</div>
+</div>
+
+<div id="legend">
+  <div class="legend-item" id="leg1"><div class="legend-swatch" style="background:var(--p1)"></div>Phase 1 · Developing — Friendly legislation</div>
+  <div class="legend-item" id="leg2"><div class="legend-swatch" style="background:var(--p2)"></div>Phase 2 · Developing — Restrictive legislation</div>
+  <div class="legend-item" id="leg3"><div class="legend-swatch" style="background:var(--p3)"></div>Phase 3 · Developed countries</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+<script>
+const PHASES = {
+  1: {
+    color: "#22c55e", hover: "#4ade80", glow: "rgba(34,197,94,0.22)",
+    label: "Phase 1", approach: "Guided journey — Zhonggu leads execution",
+    subtitle: "Direct deployment in countries with manageable import regulations and strong local NGO capacity.",
+    objective: "Enable direct deployment of Green IT Classrooms by shipping limited volumes of refurbished computers from China, combined with strong local capacity building, to countries where import regulations are manageable.",
+    countries: {
+      "Colombia": {
+        dx: -42, dy: 18, anchor: "end",
+        ngos: [
+          { name: "SiembraTIC", website: "https://siembratic.org", focus: "Connectivity and devices for vulnerable students" },
+          { name: "Fundación Transformemos", website: "https://transformemos.edu.co", focus: "ICT-enabled education" },
+        ]
+      },
+      "Cambodia": {
+        dx: 24, dy: 8, anchor: "start",
+        ngos: [
+          { name: "KAPE", website: "https://kapekh.org", focus: "ICT classrooms and digital education" },
+          { name: "Passerelles Numériques Cambodia", website: "https://passerellesnumeriques.org", focus: "Tech education and employability" },
+        ]
+      },
+      "Laos": {
+        dx: 22, dy: -10, anchor: "start",
+        ngos: [
+          { name: "Child's Dream", website: "https://childsdream.org", focus: "Computer labs and rural education" },
+          { name: "Pencils of Promise", website: "https://pencilsofpromise.org", focus: "Education infrastructure" },
+        ]
+      },
+      "Mongolia": {
+        dx: 28, dy: -12, anchor: "start",
+        ngos: [
+          { name: "Girls Code Mongolia", website: "https://girlscodemongolia.org", focus: "Digital skills and inclusion" },
+          { name: "ICT for Education Mongolia", website: "https://ictem.edu.mn", focus: "ICT in education" },
+        ]
+      },
+      "Pakistan": {
+        dx: -40, dy: -10, anchor: "end",
+        ngos: [
+          { name: "Moawin Foundation", website: "https://mf.org.pk", focus: "Education and development" },
+          { name: "The Citizens Foundation", website: "https://tcf.org.pk", focus: "Education access" },
+        ]
+      },
+      "Peru": {
+        dx: -36, dy: 16, anchor: "end",
+        ngos: [
+          { name: "Laboratoria", website: "https://laboratoria.la", focus: "Tech training and employability" },
+          { name: "Enseña Perú", website: "https://ensenaperu.org", focus: "Education system improvement" },
+        ]
+      },
+      "Philippines": {
+        dx: 28, dy: 12, anchor: "start",
+        ngos: [
+          { name: "FIT-ED", website: "https://fit-ed.org", focus: "ICT for education" },
+          { name: "Passerelles Numériques Philippines", website: "https://passerellesnumeriques.org", focus: "Tech education" },
+        ]
+      },
+      "Timor-Leste": {
+        dx: 30, dy: 20, anchor: "start",
+        ngos: [
+          { name: "World Computer Exchange", website: "https://worldcomputerexchange.org", focus: "Computer donations" },
+          { name: "Alola Foundation", website: "https://alolafoundation.org", focus: "Community development" },
+        ]
+      },
+    }
+  },
+  2: {
+    color: "#eab308", hover: "#facc15", glow: "rgba(234,179,8,0.22)",
+    label: "Phase 2", approach: "Collaborative journey — Zhonggu enables execution",
+    subtitle: "Exporting Zhonggu's circular economy model through knowledge transfer in markets with complex import environments.",
+    objective: "Export Zhonggu's proven circular economy and digital education model through knowledge transfer and local capacity building to countries with more complex import environments.",
+    countries: {
+      "Argentina": {
+        dx: -34, dy: 18, anchor: "end",
+        ngos: [
+          { name: "Fundación Equidad", website: "https://equidad.org", focus: "Refurbished computers" },
+          { name: "Chicos.net", website: "https://chicos.net", focus: "Digital education" },
+        ]
+      },
+      "Kenya": {
+        dx: 24, dy: 10, anchor: "start",
+        ngos: [
+          { name: "Computers for Schools Kenya", website: "https://cfsk.org", focus: "Computer labs" },
+          { name: "Camara Education", website: "https://camara.org", focus: "Digital education" },
+        ]
+      },
+      "Morocco": {
+        dx: -24, dy: -12, anchor: "end",
+        ngos: [
+          { name: "Al Jisr Association", website: "https://aljisr.org", focus: "School support" },
+          { name: "INJAZ Al-Maghrib", website: "https://injaz-ma.org", focus: "Education programs" },
+        ]
+      },
+      "South Africa": {
+        dx: 26, dy: 18, anchor: "start",
+        ngos: [
+          { name: "SchoolNet South Africa", website: "https://schoolnet.org.za", focus: "ICT in schools" },
+          { name: "IkamvaYouth", website: "https://ikamvayouth.org", focus: "Youth education" },
+        ]
+      },
+      "Uganda": {
+        dx: 24, dy: -6, anchor: "start",
+        ngos: [
+          { name: "Camara Education", website: "https://camara.org", focus: "ICT infrastructure" },
+          { name: "Uconnect Uganda", website: "https://uconnectug.org", focus: "Connectivity access" },
+        ]
+      },
+      "Bolivia": {
+        dx: -30, dy: 14, anchor: "end",
+        ngos: [
+          { name: "Fundación Jala", website: "https://jala.org", focus: "Tech education" },
+          { name: "Ayni Bolivia", website: "https://ayni.org.bo", focus: "Community development" },
+        ]
+      },
+      "Brazil": {
+        dx: 30, dy: 14, anchor: "start",
+        ngos: [
+          { name: "Programando o Futuro", website: "https://programandoofuturo.org.br", focus: "E-waste refurbishment" },
+          { name: "CDI", website: "https://cdi.org.br", focus: "Digital inclusion" },
+        ]
+      },
+      "Bulgaria": {
+        dx: 24, dy: -12, anchor: "start",
+        ngos: [
+          { name: "Teach for Bulgaria", website: "https://zaednovchas.bg", focus: "Education system" },
+          { name: "BCause Foundation", website: "https://bcause.bg", focus: "Social impact" },
+        ]
+      },
+      "Chile": {
+        dx: -32, dy: 10, anchor: "end",
+        ngos: [
+          { name: "Fundación Chilenter", website: "https://chilenter.cl", focus: "Refurbished tech" },
+          { name: "Enseña Chile", website: "https://ensenachile.cl", focus: "Education" },
+        ]
+      },
+      "Cuba": {
+        dx: -28, dy: -9, anchor: "end",
+        ngos: [
+          { name: "Joven Club de Computación", website: "https://jovenclub.cu", focus: "Digital access" },
+        ]
+      },
+      "Ecuador": {
+        dx: -30, dy: 8, anchor: "end",
+        ngos: [
+          { name: "Fundación Telefónica Ecuador", website: "https://fundaciontelefonica.com.ec", focus: "Digital education" },
+          { name: "Enseña Ecuador", website: "https://ensenaecuador.org", focus: "Education" },
+        ]
+      },
+      "Indonesia": {
+        dx: 30, dy: 14, anchor: "start",
+        ngos: [
+          { name: "Relawan TIK Indonesia", website: "https://relawantik.or.id", focus: "ICT literacy" },
+          { name: "Indonesia Mengajar", website: "https://indonesiamengajar.org", focus: "Education" },
+        ]
+      },
+      "Mexico": {
+        dx: -30, dy: -12, anchor: "end",
+        ngos: [
+          { name: "Enseña por México", website: "https://ensenapormexico.org", focus: "Education" },
+          { name: "Fundación Proacceso", website: "https://proacceso.org.mx", focus: "Digital inclusion" },
+        ]
+      },
+      "Thailand": {
+        dx: 28, dy: 8, anchor: "start",
+        ngos: [
+          { name: "Child's Dream", website: "https://childsdream.org", focus: "Education" },
+          { name: "Code for Thailand", website: "https://codeforthailand.org", focus: "Civic tech" },
+        ]
+      },
+    }
+  },
+  3: {
+    color: "#3b82f6", hover: "#60a5fa", glow: "rgba(59,130,246,0.22)",
+    label: "Phase 3", approach: "Strategic journey — Zhonggu enables & amplifies",
+    subtitle: "Building brand influence and mobilizing funding, expertise, and partnerships from developed-country institutions.",
+    objective: "Build brand influence, advocate for Zhonggu's circular-economy + rural education model, and mobilize resources — funding, expertise, and partnerships — to support programs globally.",
+    countries: {
+      "Canada": {
+        dx: -36, dy: -14, anchor: "end",
+        ngos: [
+          { name: "Computers for Schools Canada", website: "https://ised-isde.canada.ca", focus: "Refurbished computers" },
+          { name: "Digital Opportunity Trust", website: "https://dotrust.org", focus: "Digital skills" },
+        ]
+      },
+      "Germany": {
+        dx: 38, dy: 6, anchor: "start",
+        ngos: [
+          { name: "Labdoo", website: "https://labdoo.org", focus: "Laptop reuse" },
+          { name: "AfB Social & Green IT", website: "https://afb-group.eu", focus: "IT refurbishment" },
+        ]
+      },
+      "Japan": {
+        dx: 26, dy: -12, anchor: "start",
+        ngos: [
+          { name: "Kokkyo naki Kodomotachi", website: "https://knk.or.jp", focus: "Youth support" },
+          { name: "e-Education Japan", website: "https://eedu.jp", focus: "Digital learning" },
+        ]
+      },
+      "Netherlands": {
+        dx: -38, dy: -4, anchor: "end",
+        ngos: [
+          { name: "Close the Gap", website: "https://closethegap.org", focus: "IT donations" },
+          { name: "Digital for Development", website: "https://d4d.net", focus: "Digital development" },
+        ]
+      },
+      "Norway": {
+        dx: 42, dy: -10, anchor: "start",
+        ngos: [
+          { name: "NFU Norway", website: "https://nfunorge.org", focus: "Inclusion" },
+          { name: "Kirkens Nødhjelp", website: "https://kirkensnodhjelp.no", focus: "Humanitarian" },
+        ]
+      },
+      "South Korea": {
+        dx: 24, dy: -12, anchor: "start",
+        ngos: [
+          { name: "NIA", website: "https://nia.or.kr", focus: "Digital inclusion" },
+          { name: "Beautiful Foundation", website: "https://beautifulfund.org", focus: "Social impact" },
+        ]
+      },
+      "United Kingdom": {
+        dx: -44, dy: -18, anchor: "end",
+        ngos: [
+          { name: "Computer Aid International", website: "https://computeraid.org", focus: "Refurbished computers" },
+          { name: "Good Things Foundation", website: "https://goodthingsfoundation.org", focus: "Digital inclusion" },
+        ]
+      },
+      "United States": {
+        dx: -36, dy: -14, anchor: "end",
+        ngos: [
+          { name: "National Cristina Foundation", website: "https://cristina.org", focus: "Tech matching" },
+          { name: "TechSoup", website: "https://techsoup.org", focus: "Tech access" },
+        ]
+      },
+    }
+  }
+};
+
+const CENTROIDS = {
+  "Colombia":[-74,4],"Cambodia":[104.9,12.6],"Laos":[102.6,17.9],"Mongolia":[103.8,46.8],
+  "Pakistan":[69.3,30.4],"Peru":[-75,-9.2],"Philippines":[122,12.5],"Timor-Leste":[125.8,-8.8],
+  "Argentina":[-64,-34],"Kenya":[37.9,0.4],"Morocco":[-7.1,31.8],"South Africa":[24,-29],
+  "Uganda":[32.3,1.4],"Bolivia":[-64.7,-16.7],"Brazil":[-51.9,-10.8],"Bulgaria":[25.3,42.7],
+  "Chile":[-71,-30],"Cuba":[-79.5,21.8],"Ecuador":[-78.2,-1.3],"Indonesia":[117,-2.5],
+  "Mexico":[-102,23.5],"Thailand":[100.9,15.4],
+  "Canada":[-96,60],"Germany":[10.5,51],"Japan":[138,36],"Netherlands":[5.3,52.1],
+  "Norway":[15,65],"South Korea":[127.5,36.5],"United Kingdom":[-2,54],"United States":[-98,39],
+};
+
+const ALIASES = {
+  "Laos":["Lao PDR","Lao People's Democratic Republic"],
+  "Timor-Leste":["East Timor"],
+  "South Africa":["Republic of South Africa"],
+  "Bolivia":["Bolivia (Plurinational State of)","Plurinational State of Bolivia"],
+  "South Korea":["Republic of Korea","Korea","Korea, Republic of"],
+  "United Kingdom":["UK","Great Britain"],
+  "United States":["United States of America","USA"],
+};
+
+let activePhase = null;
+let svgG, zoomBehavior, svgEl, projFn, annotationsG;
+let selectedCountry = null;
+
+function resolveCountry(name) {
+  const n = name.toLowerCase().trim();
+  for (const [c, aliases] of Object.entries(ALIASES)) {
+    if (c.toLowerCase() === n) return c;
+    if (aliases.some(a => a.toLowerCase() === n)) return c;
+  }
+  for (const p of Object.values(PHASES)) {
+    const m = Object.keys(p.countries).find(c => c.toLowerCase() === n);
+    if (m) return m;
+  }
+  return name;
+}
+
+function getPhaseNumForCountry(name) {
+  const r = resolveCountry(name);
+  for (const [num, p] of Object.entries(PHASES)) {
+    if (r in p.countries) return parseInt(num);
+  }
+  return null;
+}
+
+function getFill(name) {
+  const ph = getPhaseNumForCountry(name);
+  if (activePhase === null) return ph !== null ? "#1f1f1f" : "#161616";
+  if (ph === activePhase) return PHASES[activePhase].color;
+  return "#141414";
+}
+
+function getHoverFill(name) {
+  const ph = getPhaseNumForCountry(name);
+  if (activePhase === null) return ph !== null ? "#2c2c2c" : "#1e1e1e";
+  if (ph === activePhase) return PHASES[activePhase].hover;
+  return "#1a1a1a";
+}
+
+function animateAll() {
+  if (!svgG) return;
+  svgG.selectAll("path.country")
+    .transition().duration(520).ease(d3.easeCubicOut)
+    .attr("fill", function() { return getFill(d3.select(this).attr("data-name")); });
+}
+
+function drawAnnotations() {
+  if (!annotationsG || !projFn) return;
+  annotationsG.selectAll("*").remove();
+  if (activePhase === null) return;
+
+  const p = PHASES[activePhase];
+
+  Object.entries(p.countries).forEach(([country, cfg]) => {
+    const centroid = CENTROIDS[country];
+    if (!centroid) return;
+    const [px, py] = projFn(centroid);
+    const tx = px + cfg.dx;
+    const ty = py + cfg.dy;
+
+    // First NGO name for the annotation label
+    const firstNgo = cfg.ngos[0]?.name || "";
+    const extraCount = cfg.ngos.length - 1;
+
+    annotationsG.append("line")
+      .attr("x1", px).attr("y1", py).attr("x2", tx).attr("y2", ty)
+      .attr("stroke", p.color).attr("stroke-width", 0.5)
+      .attr("stroke-opacity", 0).attr("stroke-dasharray", "2,2")
+      .transition().delay(60).duration(400).attr("stroke-opacity", 0.32);
+
+    annotationsG.append("circle")
+      .attr("cx", px).attr("cy", py).attr("r", 2)
+      .attr("fill", p.color).attr("opacity", 0)
+      .transition().delay(60).duration(400).attr("opacity", 0.65);
+
+    const labelG = annotationsG.append("g")
+      .attr("opacity", 0);
+
+    labelG.append("text")
+      .attr("x", tx + (cfg.anchor === "start" ? 3 : -3))
+      .attr("y", ty)
+      .attr("text-anchor", cfg.anchor)
+      .attr("dominant-baseline", "middle")
+      .attr("fill", "rgba(255,255,255,0.7)")
+      .attr("class", "ngo-annotation")
+      .style("font-size", "5.5px")
+      .style("pointer-events", "none")
+      .text(firstNgo);
+
+    if (extraCount > 0) {
+      labelG.append("text")
+        .attr("x", tx + (cfg.anchor === "start" ? 3 : -3))
+        .attr("y", ty + 7)
+        .attr("text-anchor", cfg.anchor)
+        .attr("dominant-baseline", "middle")
+        .attr("fill", "rgba(255,255,255,0.35)")
+        .style("font-size", "4.5px")
+        .style("font-family", "Inter, sans-serif")
+        .style("pointer-events", "none")
+        .text(`+${extraCount} more`);
+    }
+
+    labelG.transition().delay(100).duration(450).attr("opacity", 1);
+  });
+}
+
+function showCard(countryName) {
+  const phaseNum = getPhaseNumForCountry(countryName);
+  if (phaseNum === null) return;
+  const p = PHASES[phaseNum];
+  const cfg = p.countries[countryName];
+  if (!cfg) return;
+
+  selectedCountry = countryName;
+  const phaseEl = document.getElementById("info-card-phase");
+  phaseEl.textContent = p.label;
+  phaseEl.style.color = p.color;
+  document.getElementById("info-card-country").textContent = countryName;
+  document.getElementById("info-card-approach").textContent = p.approach;
+
+  const ngoList = document.getElementById("info-card-ngos");
+  ngoList.innerHTML = cfg.ngos.map(ngo => {
+    const domain = ngo.website.replace(/^https?:\/\//, "").replace(/\/$/, "");
+    return `
+      <div class="ngo-row">
+        <div class="ngo-row-top">
+          <span class="ngo-bullet" style="background:${p.color}"></span>
+          <span class="ngo-name">${ngo.name}</span>
+        </div>
+        <div class="ngo-focus">${ngo.focus}</div>
+        <div class="ngo-link"><a href="${ngo.website}" target="_blank" rel="noopener">${domain} ↗</a></div>
+      </div>`;
+  }).join("");
+
+  document.getElementById("info-card").classList.add("visible");
+}
+
+function closeCard() {
+  document.getElementById("info-card").classList.remove("visible");
+  selectedCountry = null;
+}
+
+function togglePhase(num) {
+  if (activePhase === num) { resetAll(); return; }
+  activePhase = num;
+  const p = PHASES[num];
+
+  document.getElementById("subtitle").textContent = p.subtitle;
+  document.getElementById("objective-text").textContent = p.objective;
+  document.getElementById("objective-text").style.color = "#888";
+  document.getElementById("objective-accent").style.background = p.color;
+  document.getElementById("objective").style.borderColor = p.color + "30";
+
+  [1,2,3].forEach(n => {
+    const b = document.getElementById("btn"+n);
+    const l = document.getElementById("leg"+n);
+    if (n === num) {
+      b.classList.add("active"); b.style.background = PHASES[n].color;
+      b.style.boxShadow = `0 4px 24px ${PHASES[n].glow}`; l.classList.add("active");
+    } else {
+      b.classList.remove("active"); b.style.background = "";
+      b.style.boxShadow = ""; l.classList.remove("active");
+    }
+  });
+
+  animateAll();
+  drawAnnotations();
+  closeCard();
+  resetZoom();
+}
+
+function resetAll() {
+  activePhase = null;
+  document.getElementById("subtitle").textContent = "Identifying NGO partners to expand Green IT Classroom coverage across developing and developed markets worldwide.";
+  document.getElementById("objective-text").textContent = "Select a phase above to explore the strategic objective and highlight target countries on the map.";
+  document.getElementById("objective-text").style.color = "";
+  document.getElementById("objective-accent").style.background = "";
+  document.getElementById("objective").style.borderColor = "";
+  [1,2,3].forEach(n => {
+    document.getElementById("btn"+n).classList.remove("active");
+    document.getElementById("btn"+n).style.background = "";
+    document.getElementById("btn"+n).style.boxShadow = "";
+    document.getElementById("leg"+n).classList.remove("active");
+  });
+  animateAll();
+  if (annotationsG) annotationsG.selectAll("*").remove();
+  closeCard();
+  resetZoom();
+}
+
+function resetZoom() {
+  if (!svgEl || !zoomBehavior) return;
+  svgEl.transition().duration(500).ease(d3.easeCubicOut)
+    .call(zoomBehavior.transform, d3.zoomIdentity);
+}
+
+function zoomToCountry(name) {
+  if (!svgG || !svgEl) return;
+  const el = svgG.selectAll("path.country").filter(function() {
+    return resolveCountry(d3.select(this).attr("data-name")) === name;
+  }).node();
+  if (!el) return;
+  const b = el.getBBox();
+  const W = +svgEl.attr("width"), H = +svgEl.attr("height");
+  const scale = Math.min(10, 0.72 / Math.max(b.width / W, b.height / H));
+  const tx = W / 2 - scale * (b.x + b.width / 2);
+  const ty = H / 2 - scale * (b.y + b.height / 2);
+  svgEl.transition().duration(700).ease(d3.easeCubicInOut)
+    .call(zoomBehavior.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
+}
+
+async function initMap() {
+  const wrap = document.getElementById("map-svg-wrap");
+  const W = wrap.offsetWidth || 1100;
+  const H = Math.round(W * 0.52);
+
+  const world = await d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json");
+  const countries = topojson.feature(world, world.objects.countries);
+  const borders = topojson.mesh(world, world.objects.countries, (a, b) => a !== b);
+
+  const projection = d3.geoNaturalEarth1()
+    .scale(W / 6.0)
+    .translate([W / 2, H / 2 + H * 0.03]);
+  projFn = projection;
+  const path = d3.geoPath().projection(projection);
+
+  svgEl = d3.select("#map-svg-wrap").append("svg")
+    .attr("width", W).attr("height", H)
+    .attr("viewBox", `0 0 ${W} ${H}`)
+    .style("display", "block");
+
+  zoomBehavior = d3.zoom().scaleExtent([1, 14])
+    .on("zoom", e => {
+      svgG.attr("transform", e.transform);
+      annotationsG.attr("transform", e.transform);
+    });
+  svgEl.call(zoomBehavior);
+
+  svgG = svgEl.append("g");
+
+  svgG.selectAll("path.country")
+    .data(countries.features)
+    .enter().append("path")
+    .attr("class", "country")
+    .attr("data-name", d => d.properties.name || "Unknown")
+    .attr("d", path)
+    .attr("fill", d => getFill(d.properties.name || "Unknown"))
+    .attr("stroke", "#000")
+    .attr("stroke-width", 0.5)
+    .style("cursor", "default")
+    .on("mouseenter", function(e, d) {
+      const name = d.properties.name || "Unknown";
+      const chip = document.getElementById("hover-chip-name");
+      chip.textContent = name;
+      const ph = getPhaseNumForCountry(name);
+      chip.style.color = (activePhase !== null && ph === activePhase) ? PHASES[activePhase].color : "";
+      if (name !== selectedCountry) d3.select(this).interrupt().attr("fill", getHoverFill(name));
+    })
+    .on("mouseleave", function(e, d) {
+      const name = d.properties.name || "Unknown";
+      document.getElementById("hover-chip-name").textContent = "—";
+      document.getElementById("hover-chip-name").style.color = "";
+      d3.select(this).interrupt().transition().duration(280).attr("fill", getFill(name));
+    })
+    .on("click", function(e, d) {
+      e.stopPropagation();
+      const name = resolveCountry(d.properties.name || "Unknown");
+      const ph = getPhaseNumForCountry(name);
+      if (activePhase !== null && ph === activePhase) {
+        if (selectedCountry === name) {
+          resetZoom();
+          closeCard();
+        } else {
+          zoomToCountry(name);
+          showCard(name);
+        }
+      }
+    });
+
+  svgG.append("path")
+    .datum(borders)
+    .attr("d", path)
+    .attr("fill", "none")
+    .attr("stroke", "#000")
+    .attr("stroke-width", 0.3);
+
+  annotationsG = svgEl.append("g");
+
+  svgEl.on("click", e => {
+    if (e.target.tagName === "svg" || e.target === svgEl.node()) {
+      resetZoom();
+      closeCard();
+    }
+  });
+}
+
+initMap();
+</script>
+</body>
+</html>
