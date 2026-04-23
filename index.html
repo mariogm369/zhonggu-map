@@ -101,7 +101,7 @@
       opacity: 0; transform: translateY(8px); pointer-events: none;
       transition: opacity 0.32s ease, transform 0.32s ease;
     }
-    #mobile-info-card.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    #mobile-info-card.visible { display: block; opacity: 1; transform: translateY(0); pointer-events: auto; }
     #m-card-close { position: absolute; top: 14px; right: 16px; font-size: 22px; line-height: 1; color: var(--text-muted); cursor: pointer; background: none; border: none; padding: 4px 6px; -webkit-tap-highlight-color: transparent; }
     #m-card-phase { font-size: 9px; text-transform: uppercase; letter-spacing: 0.18em; font-weight: 500; margin-bottom: 7px; }
     #m-card-country { font-family: 'Inter Tight', sans-serif; font-size: 22px; font-weight: 700; color: #fff; letter-spacing: -0.01em; margin-bottom: 5px; padding-right: 28px; }
@@ -133,6 +133,8 @@
     .legend-swatch { width: 10px; height: 10px; border-radius: 3px; opacity: 0.45; transition: opacity 0.25s; }
     .legend-item.active .legend-swatch { opacity: 1; }
 
+    #disclaimer { width: 100%; max-width: 1100px; margin-top: 24px; font-size: 11px; color: #333; line-height: 1.65; text-align: center; }
+
     .ngo-annotation { font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-weight: 300; }
 
     /* ════════════════════════════
@@ -145,9 +147,12 @@
       #main-title { font-size: 22px; margin-bottom: 8px; }
       #subtitle { font-size: 13px; min-height: unset; }
 
-      /* Stack buttons full-width */
+      /* Stack buttons full-width, consistent alignment */
       #controls { flex-direction: column; align-items: stretch; gap: 8px; margin-bottom: 16px; }
-      .phase-btn { padding: 13px 20px; white-space: normal; justify-content: flex-start; }
+      .phase-btn { padding: 13px 20px; white-space: normal; justify-content: flex-start; align-items: center; }
+      .phase-btn .btn-phase-num { min-width: 56px; }
+      .phase-btn .btn-sep { flex-shrink: 0; }
+      .phase-btn .btn-desc { flex: 1; text-align: left; line-height: 1.35; }
       #btn-reset { align-self: center; }
 
       /* Map taller so world is visible in portrait */
@@ -159,7 +164,8 @@
 
       /* Swap cards: hide desktop overlay, show mobile card below */
       #info-card { display: none !important; }
-      #mobile-info-card { display: block; }
+      #mobile-info-card { display: none; }
+      #mobile-info-card.visible { display: block; }
 
       #objective { padding: 12px 14px; }
       #objective-text { font-size: 12px; }
@@ -240,11 +246,7 @@
   <div id="objective-text">Select a phase above to explore the strategic objective and highlight target countries on the map.</div>
 </div>
 
-<div id="legend">
-  <div class="legend-item" id="leg1"><div class="legend-swatch" style="background:var(--p1)"></div>Phase 1 · Developing — Friendly legislation</div>
-  <div class="legend-item" id="leg2"><div class="legend-swatch" style="background:var(--p2)"></div>Phase 2 · Developing — Restrictive legislation</div>
-  <div class="legend-item" id="leg3"><div class="legend-swatch" style="background:var(--p3)"></div>Phase 3 · Developed countries</div>
-</div>
+<p id="disclaimer">These countries and NGOs represent suggested opportunities for expansion and partnership development. Final prioritization may evolve based on the defined scaling strategy and available resources.</p>
 
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
@@ -685,13 +687,12 @@ function togglePhase(num) {
 
   [1,2,3].forEach(n => {
     const b = document.getElementById("btn"+n);
-    const l = document.getElementById("leg"+n);
     if (n === num) {
       b.classList.add("active"); b.style.background = PHASES[n].color;
-      b.style.boxShadow = `0 4px 24px ${PHASES[n].glow}`; l.classList.add("active");
+      b.style.boxShadow = `0 4px 24px ${PHASES[n].glow}`;
     } else {
       b.classList.remove("active"); b.style.background = "";
-      b.style.boxShadow = ""; l.classList.remove("active");
+      b.style.boxShadow = "";
     }
   });
 
@@ -714,7 +715,6 @@ function resetAll() {
     document.getElementById("btn"+n).classList.remove("active");
     document.getElementById("btn"+n).style.background = "";
     document.getElementById("btn"+n).style.boxShadow = "";
-    document.getElementById("leg"+n).classList.remove("active");
   });
   animateAll();
   if (annotationsG) annotationsG.selectAll("*").remove();
@@ -780,8 +780,8 @@ async function initMap() {
     .attr("data-name", d => d.properties.name || "Unknown")
     .attr("d", path)
     .attr("fill", d => getFill(d.properties.name || "Unknown"))
-    .attr("stroke", "#000")
-    .attr("stroke-width", 0.5)
+    .attr("stroke", "#2e2e2e")
+    .attr("stroke-width", 0.6)
     .style("cursor", "default")
     .on("mouseenter", function(e, d) {
       const name = d.properties.name || "Unknown";
@@ -816,8 +816,8 @@ async function initMap() {
     .datum(borders)
     .attr("d", path)
     .attr("fill", "none")
-    .attr("stroke", "#000")
-    .attr("stroke-width", 0.3);
+    .attr("stroke", "#282828")
+    .attr("stroke-width", 0.4);
 
   annotationsG = svgEl.append("g");
 
