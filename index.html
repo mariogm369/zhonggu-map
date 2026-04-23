@@ -17,29 +17,27 @@
       --text-primary: #fff;
       --text-secondary: #999;
       --text-muted: #555;
-      --p1: #22c55e;
-      --p1-glow: rgba(34,197,94,0.22);
-      --p2: #eab308;
-      --p2-glow: rgba(234,179,8,0.22);
-      --p3: #3b82f6;
-      --p3-glow: rgba(59,130,246,0.22);
+      --p1: #22c55e; --p1-glow: rgba(34,197,94,0.22);
+      --p2: #eab308; --p2-glow: rgba(234,179,8,0.22);
+      --p3: #3b82f6; --p3-glow: rgba(59,130,246,0.22);
     }
 
     html, body { background: var(--bg); color: var(--text-primary); font-family: 'Inter', sans-serif; min-height: 100vh; }
     body { display: flex; flex-direction: column; align-items: center; padding: 52px 32px 72px; }
 
+    /* ── Header ── */
     #header { width: 100%; max-width: 1100px; margin-bottom: 30px; text-align: center; }
     #eyebrow { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 14px; }
     #main-title { font-family: 'Inter Tight', sans-serif; font-size: 34px; font-weight: 700; letter-spacing: -0.025em; margin-bottom: 11px; line-height: 1.1; }
     #subtitle { font-size: 14px; color: var(--text-secondary); max-width: 520px; margin: 0 auto; line-height: 1.65; transition: color 0.4s; min-height: 44px; }
 
+    /* ── Controls ── */
     #controls { display: flex; gap: 10px; margin-bottom: 22px; flex-wrap: wrap; justify-content: center; align-items: center; }
-
     .phase-btn {
       display: flex; align-items: center; gap: 10px; padding: 11px 28px; border-radius: 100px;
       font-size: 13px; font-weight: 500; font-family: 'Inter', sans-serif; cursor: pointer;
-      transition: all 0.25s ease; background: var(--surface2); border: 1px solid var(--border2); color: var(--text-secondary);
-      white-space: nowrap;
+      transition: all 0.25s ease; background: var(--surface2); border: 1px solid var(--border2);
+      color: var(--text-secondary); white-space: nowrap; -webkit-tap-highlight-color: transparent;
     }
     .phase-btn .btn-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
     .phase-btn .btn-phase-num { font-weight: 600; color: var(--text-primary); }
@@ -52,16 +50,16 @@
     .phase-btn.active .btn-phase-num { color: #000; font-weight: 700; }
     .phase-btn.active .btn-sep { color: rgba(0,0,0,0.35); }
     .phase-btn.active .btn-desc { color: rgba(0,0,0,0.55); }
-
-    #btn-reset { padding: 11px 22px; border-radius: 100px; font-size: 12px; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.22s; background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
+    #btn-reset { padding: 11px 22px; border-radius: 100px; font-size: 12px; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.22s; background: transparent; border: 1px solid var(--border); color: var(--text-muted); -webkit-tap-highlight-color: transparent; }
     #btn-reset:hover { border-color: var(--border2); color: var(--text-secondary); }
 
+    /* ── Map frame ── */
     #map-frame {
       width: 100%; max-width: 1100px; background: var(--surface); border: 1px solid var(--border);
       border-radius: 20px; overflow: hidden; position: relative;
       box-shadow: 0 0 0 1px rgba(255,255,255,0.03), 0 40px 100px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.04);
+      touch-action: none;
     }
-
     #hover-chip {
       position: absolute; top: 16px; right: 16px; z-index: 20;
       background: rgba(0,0,0,0.82); backdrop-filter: blur(16px);
@@ -69,11 +67,10 @@
     }
     #hover-chip-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--text-muted); margin-bottom: 3px; }
     #hover-chip-name { font-size: 12px; font-weight: 500; color: var(--text-secondary); text-align: right; transition: color 0.2s; }
-
     #map-svg-wrap { width: 100%; display: block; line-height: 0; }
-    #map-svg-wrap svg { display: block; width: 100%; }
+    #map-svg-wrap svg { display: block; width: 100%; touch-action: none; }
 
-    /* Info card */
+    /* ── Desktop info card (overlaid bottom-left inside map) ── */
     #info-card {
       position: absolute; bottom: 20px; left: 20px; z-index: 30;
       background: rgba(4,4,4,0.94); backdrop-filter: blur(24px);
@@ -86,10 +83,8 @@
     #info-card::-webkit-scrollbar { width: 3px; }
     #info-card::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
     #info-card.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
-
     #info-card-close { position: absolute; top: 14px; right: 16px; font-size: 18px; line-height: 1; color: var(--text-muted); cursor: pointer; background: none; border: none; padding: 2px 4px; transition: color 0.15s; }
     #info-card-close:hover { color: var(--text-secondary); }
-
     #info-card-phase { font-size: 9px; text-transform: uppercase; letter-spacing: 0.18em; font-weight: 500; margin-bottom: 7px; }
     #info-card-country { font-family: 'Inter Tight', sans-serif; font-size: 20px; font-weight: 700; color: #fff; letter-spacing: -0.01em; margin-bottom: 5px; padding-right: 24px; }
     #info-card-approach { font-size: 11px; color: var(--text-muted); font-style: italic; line-height: 1.5; margin-bottom: 14px; }
@@ -97,10 +92,26 @@
     #info-card-ngo-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text-muted); margin-bottom: 10px; }
     #info-card-ngos { display: flex; flex-direction: column; gap: 0; }
 
-    .ngo-row {
-      display: flex; flex-direction: column; gap: 2px;
-      padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+    /* ── Mobile info card (below the map, hidden on desktop) ── */
+    #mobile-info-card {
+      display: none;
+      width: 100%; max-width: 1100px; margin-top: 12px; position: relative;
+      background: var(--surface); border: 1px solid var(--border2); border-radius: 16px;
+      padding: 20px 22px 18px;
+      opacity: 0; transform: translateY(8px); pointer-events: none;
+      transition: opacity 0.32s ease, transform 0.32s ease;
     }
+    #mobile-info-card.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    #m-card-close { position: absolute; top: 14px; right: 16px; font-size: 22px; line-height: 1; color: var(--text-muted); cursor: pointer; background: none; border: none; padding: 4px 6px; -webkit-tap-highlight-color: transparent; }
+    #m-card-phase { font-size: 9px; text-transform: uppercase; letter-spacing: 0.18em; font-weight: 500; margin-bottom: 7px; }
+    #m-card-country { font-family: 'Inter Tight', sans-serif; font-size: 22px; font-weight: 700; color: #fff; letter-spacing: -0.01em; margin-bottom: 5px; padding-right: 28px; }
+    #m-card-approach { font-size: 12px; color: var(--text-muted); font-style: italic; line-height: 1.5; margin-bottom: 14px; }
+    #m-card-divider { height: 1px; background: var(--border); margin-bottom: 14px; }
+    #m-card-ngo-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text-muted); margin-bottom: 10px; }
+    #m-card-ngos { display: flex; flex-direction: column; gap: 0; }
+
+    /* shared NGO row styles */
+    .ngo-row { display: flex; flex-direction: column; gap: 2px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
     .ngo-row:last-child { border-bottom: none; padding-bottom: 0; }
     .ngo-row-top { display: flex; align-items: flex-start; gap: 8px; }
     .ngo-bullet { width: 4px; height: 4px; border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
@@ -110,10 +121,12 @@
     .ngo-link a { color: rgba(255,255,255,0.3); text-decoration: none; transition: color 0.15s; letter-spacing: 0.01em; }
     .ngo-link a:hover { color: rgba(255,255,255,0.65); }
 
+    /* ── Objective ── */
     #objective { width: 100%; max-width: 1100px; margin-top: 14px; padding: 14px 20px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); display: flex; align-items: stretch; gap: 14px; transition: border-color 0.35s; min-height: 56px; }
     #objective-accent { width: 3px; border-radius: 2px; background: var(--border2); flex-shrink: 0; transition: background 0.35s; }
     #objective-text { font-size: 13px; line-height: 1.7; color: var(--text-muted); transition: color 0.35s; align-self: center; }
 
+    /* ── Legend ── */
     #legend { display: flex; gap: 28px; margin-top: 20px; flex-wrap: wrap; justify-content: center; }
     .legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-muted); letter-spacing: 0.03em; transition: color 0.25s; }
     .legend-item.active { color: var(--text-secondary); }
@@ -121,6 +134,49 @@
     .legend-item.active .legend-swatch { opacity: 1; }
 
     .ngo-annotation { font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-weight: 300; }
+
+    /* ════════════════════════════
+       MOBILE  ≤ 767px
+    ════════════════════════════ */
+    @media (max-width: 767px) {
+      body { padding: 28px 16px 52px; }
+
+      #eyebrow { font-size: 10px; margin-bottom: 10px; }
+      #main-title { font-size: 22px; margin-bottom: 8px; }
+      #subtitle { font-size: 13px; min-height: unset; }
+
+      /* Stack buttons full-width */
+      #controls { flex-direction: column; align-items: stretch; gap: 8px; margin-bottom: 16px; }
+      .phase-btn { padding: 13px 20px; white-space: normal; justify-content: flex-start; }
+      #btn-reset { align-self: center; }
+
+      /* Map taller so world is visible in portrait */
+      #map-frame { border-radius: 14px; }
+      #map-svg-wrap svg { height: 260px !important; }
+
+      /* No hover chip on touch */
+      #hover-chip { display: none; }
+
+      /* Swap cards: hide desktop overlay, show mobile card below */
+      #info-card { display: none !important; }
+      #mobile-info-card { display: block; }
+
+      #objective { padding: 12px 14px; }
+      #objective-text { font-size: 12px; }
+
+      #legend { flex-direction: column; align-items: flex-start; gap: 10px; padding: 0 2px; }
+      .legend-item { font-size: 11px; }
+    }
+
+    /* ════════════════════════════
+       SMALL TABLET  768–1023px
+    ════════════════════════════ */
+    @media (min-width: 768px) and (max-width: 1023px) {
+      body { padding: 40px 24px 60px; }
+      #main-title { font-size: 26px; }
+      .phase-btn { padding: 10px 20px; font-size: 12px; }
+      .phase-btn .btn-desc { font-size: 11px; }
+    }
   </style>
 </head>
 <body>
@@ -168,6 +224,15 @@
     <div id="info-card-ngos"></div>
   </div>
   <div id="map-svg-wrap"></div>
+</div>
+<div id="mobile-info-card">
+  <button id="m-card-close" onclick="closeMobileCard()">×</button>
+  <div id="m-card-phase"></div>
+  <div id="m-card-country"></div>
+  <div id="m-card-approach"></div>
+  <div style="height:1px;background:var(--border);margin-bottom:14px;"></div>
+  <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.14em;color:var(--text-muted);margin-bottom:10px;">NGO Partners</div>
+  <div id="m-card-ngos"></div>
 </div>
 
 <div id="objective">
@@ -547,6 +612,22 @@ function drawAnnotations() {
   });
 }
 
+function buildNgoHtml(ngos, color) {
+  return ngos.map(ngo => {
+    const domain = ngo.website.replace(/^https?:\/\//, "").replace(/\/$/, "");
+    return `<div class="ngo-row">
+      <div class="ngo-row-top">
+        <span class="ngo-bullet" style="background:${color}"></span>
+        <span class="ngo-name">${ngo.name}</span>
+      </div>
+      <div class="ngo-focus">${ngo.focus}</div>
+      <div class="ngo-link"><a href="${ngo.website}" target="_blank" rel="noopener">${domain} ↗</a></div>
+    </div>`;
+  }).join("");
+}
+
+function isMobile() { return window.innerWidth <= 767; }
+
 function showCard(countryName) {
   const phaseNum = getPhaseNumForCountry(countryName);
   if (phaseNum === null) return;
@@ -555,32 +636,40 @@ function showCard(countryName) {
   if (!cfg) return;
 
   selectedCountry = countryName;
-  const phaseEl = document.getElementById("info-card-phase");
-  phaseEl.textContent = p.label;
-  phaseEl.style.color = p.color;
-  document.getElementById("info-card-country").textContent = countryName;
-  document.getElementById("info-card-approach").textContent = p.approach;
+  const ngoHtml = buildNgoHtml(cfg.ngos, p.color);
 
-  const ngoList = document.getElementById("info-card-ngos");
-  ngoList.innerHTML = cfg.ngos.map(ngo => {
-    const domain = ngo.website.replace(/^https?:\/\//, "").replace(/\/$/, "");
-    return `
-      <div class="ngo-row">
-        <div class="ngo-row-top">
-          <span class="ngo-bullet" style="background:${p.color}"></span>
-          <span class="ngo-name">${ngo.name}</span>
-        </div>
-        <div class="ngo-focus">${ngo.focus}</div>
-        <div class="ngo-link"><a href="${ngo.website}" target="_blank" rel="noopener">${domain} ↗</a></div>
-      </div>`;
-  }).join("");
-
-  document.getElementById("info-card").classList.add("visible");
+  if (isMobile()) {
+    // Populate and show mobile card below map
+    document.getElementById("m-card-phase").textContent = p.label;
+    document.getElementById("m-card-phase").style.color = p.color;
+    document.getElementById("m-card-country").textContent = countryName;
+    document.getElementById("m-card-approach").textContent = p.approach;
+    document.getElementById("m-card-ngos").innerHTML = ngoHtml;
+    const mc = document.getElementById("mobile-info-card");
+    mc.classList.add("visible");
+    // Smooth scroll the card into view
+    setTimeout(() => mc.scrollIntoView({ behavior: "smooth", block: "nearest" }), 50);
+  } else {
+    // Populate and show desktop overlay card
+    const phaseEl = document.getElementById("info-card-phase");
+    phaseEl.textContent = p.label;
+    phaseEl.style.color = p.color;
+    document.getElementById("info-card-country").textContent = countryName;
+    document.getElementById("info-card-approach").textContent = p.approach;
+    document.getElementById("info-card-ngos").innerHTML = ngoHtml;
+    document.getElementById("info-card").classList.add("visible");
+  }
 }
 
 function closeCard() {
   document.getElementById("info-card").classList.remove("visible");
   selectedCountry = null;
+}
+
+function closeMobileCard() {
+  document.getElementById("mobile-info-card").classList.remove("visible");
+  selectedCountry = null;
+  resetZoom();
 }
 
 function togglePhase(num) {
@@ -609,6 +698,8 @@ function togglePhase(num) {
   animateAll();
   drawAnnotations();
   closeCard();
+  document.getElementById("mobile-info-card").classList.remove("visible");
+  selectedCountry = null;
   resetZoom();
 }
 
@@ -628,6 +719,7 @@ function resetAll() {
   animateAll();
   if (annotationsG) annotationsG.selectAll("*").remove();
   closeCard();
+  document.getElementById("mobile-info-card").classList.remove("visible");
   resetZoom();
 }
 
