@@ -1,223 +1,176 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Zhonggu Global Scaling Strategy</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Inter+Tight:wght@600;700&family=Cormorant+Garamond:ital,wght@0,300;1,300&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Zhonggu Global Scaling Strategy</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Inter+Tight:wght@600;700&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#000;--surface:#0a0a0a;--surface2:#111;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text-primary:#fff;--text-secondary:#999;--text-muted:#555;
+  --p1:#22c55e;--p1-glow:rgba(34,197,94,0.22);
+  --p2:#eab308;--p2-glow:rgba(234,179,8,0.22);
+  --p3:#3b82f6;--p3-glow:rgba(59,130,246,0.22);
+}
+html,body{background:var(--bg);color:var(--text-primary);font-family:'Inter',sans-serif;min-height:100vh}
+body{display:flex;flex-direction:column;align-items:center;padding:48px 32px 72px}
 
-    :root {
-      --bg: #000;
-      --surface: #0a0a0a;
-      --surface2: #111;
-      --border: rgba(255,255,255,0.07);
-      --border2: rgba(255,255,255,0.13);
-      --text-primary: #fff;
-      --text-secondary: #999;
-      --text-muted: #555;
-      --p1: #22c55e; --p1-glow: rgba(34,197,94,0.22);
-      --p2: #eab308; --p2-glow: rgba(234,179,8,0.22);
-      --p3: #3b82f6; --p3-glow: rgba(59,130,246,0.22);
-    }
+/* ── Lang toggle ── */
+#lang-bar{width:100%;max-width:1100px;display:flex;justify-content:flex-end;margin-bottom:18px}
+#lang-toggle{display:flex;background:var(--surface2);border:1px solid var(--border2);border-radius:100px;padding:3px;gap:3px}
+.lang-btn{padding:6px 16px;border-radius:100px;font-size:12px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--text-muted);font-family:'Inter',sans-serif;transition:all 0.2s;-webkit-tap-highlight-color:transparent}
+.lang-btn.active{background:var(--text-primary);color:#000}
+.lang-btn:hover:not(.active){color:var(--text-secondary)}
 
-    html, body { background: var(--bg); color: var(--text-primary); font-family: 'Inter', sans-serif; min-height: 100vh; }
-    body { display: flex; flex-direction: column; align-items: center; padding: 52px 32px 72px; }
+/* ── Header ── */
+#header{width:100%;max-width:1100px;margin-bottom:28px;text-align:center}
+#eyebrow{font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-muted);margin-bottom:14px}
+#main-title{font-family:'Inter Tight',sans-serif;font-size:34px;font-weight:700;letter-spacing:-0.025em;margin-bottom:11px;line-height:1.1}
+#subtitle{font-size:14px;color:var(--text-secondary);max-width:520px;margin:0 auto;line-height:1.65;transition:color 0.4s;min-height:44px}
 
-    /* ── Header ── */
-    #header { width: 100%; max-width: 1100px; margin-bottom: 30px; text-align: center; }
-    #eyebrow { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 14px; }
-    #main-title { font-family: 'Inter Tight', sans-serif; font-size: 34px; font-weight: 700; letter-spacing: -0.025em; margin-bottom: 11px; line-height: 1.1; }
-    #subtitle { font-size: 14px; color: var(--text-secondary); max-width: 520px; margin: 0 auto; line-height: 1.65; transition: color 0.4s; min-height: 44px; }
+/* ── Phase controls ── */
+#controls{display:flex;gap:10px;margin-bottom:22px;flex-wrap:wrap;justify-content:center;align-items:center}
+.phase-btn{display:flex;align-items:center;gap:10px;padding:11px 28px;border-radius:100px;font-size:13px;font-weight:500;font-family:'Inter',sans-serif;cursor:pointer;transition:all 0.25s ease;background:var(--surface2);border:1px solid var(--border2);color:var(--text-secondary);white-space:nowrap;-webkit-tap-highlight-color:transparent}
+.phase-btn .btn-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.phase-btn .btn-num{font-weight:600;color:var(--text-primary)}
+.phase-btn .btn-sep{color:var(--text-muted);margin:0 2px}
+.phase-btn .btn-desc{color:var(--text-muted);font-weight:400;font-size:12px}
+.phase-btn:hover .btn-num{color:var(--text-primary)}
+.phase-btn:hover .btn-desc{color:var(--text-secondary)}
+.phase-btn:hover{transform:translateY(-1px)}
+.phase-btn.active{border-color:transparent;transform:translateY(-1px)}
+.phase-btn.active .btn-num,.phase-btn.active .btn-sep,.phase-btn.active .btn-desc{color:#000}
+#btn-clear{padding:11px 22px;border-radius:100px;font-size:12px;font-family:'Inter',sans-serif;cursor:pointer;transition:all 0.22s;background:transparent;border:1px solid var(--border);color:var(--text-muted);-webkit-tap-highlight-color:transparent}
+#btn-clear:hover{border-color:var(--border2);color:var(--text-secondary)}
 
-    /* ── Controls ── */
-    #controls { display: flex; gap: 10px; margin-bottom: 22px; flex-wrap: wrap; justify-content: center; align-items: center; }
-    .phase-btn {
-      display: flex; align-items: center; gap: 10px; padding: 11px 28px; border-radius: 100px;
-      font-size: 13px; font-weight: 500; font-family: 'Inter', sans-serif; cursor: pointer;
-      transition: all 0.25s ease; background: var(--surface2); border: 1px solid var(--border2);
-      color: var(--text-secondary); white-space: nowrap; -webkit-tap-highlight-color: transparent;
-    }
-    .phase-btn .btn-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-    .phase-btn .btn-phase-num { font-weight: 600; color: var(--text-primary); }
-    .phase-btn .btn-sep { color: var(--text-muted); margin: 0 2px; }
-    .phase-btn .btn-desc { color: var(--text-muted); font-weight: 400; font-size: 12px; }
-    .phase-btn:hover .btn-phase-num { color: var(--text-primary); }
-    .phase-btn:hover .btn-desc { color: var(--text-secondary); }
-    .phase-btn:hover { transform: translateY(-1px); }
-    .phase-btn.active { border-color: transparent; transform: translateY(-1px); }
-    .phase-btn.active .btn-phase-num { color: #000; font-weight: 700; }
-    .phase-btn.active .btn-sep { color: rgba(0,0,0,0.35); }
-    .phase-btn.active .btn-desc { color: rgba(0,0,0,0.55); }
-    #btn-reset { padding: 11px 22px; border-radius: 100px; font-size: 12px; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.22s; background: transparent; border: 1px solid var(--border); color: var(--text-muted); -webkit-tap-highlight-color: transparent; }
-    #btn-reset:hover { border-color: var(--border2); color: var(--text-secondary); }
+/* ── Map frame ── */
+#map-frame{width:100%;max-width:1100px;background:var(--surface);border:1px solid var(--border);border-radius:20px;overflow:hidden;position:relative;box-shadow:0 0 0 1px rgba(255,255,255,0.03),0 40px 100px rgba(0,0,0,0.7),inset 0 1px 0 rgba(255,255,255,0.04);touch-action:none}
+#hover-chip{position:absolute;top:16px;right:16px;z-index:20;background:rgba(0,0,0,0.82);backdrop-filter:blur(16px);border:1px solid var(--border2);border-radius:10px;padding:8px 14px;min-width:155px;pointer-events:none}
+#hover-chip-label{font-size:9px;text-transform:uppercase;letter-spacing:0.16em;color:var(--text-muted);margin-bottom:3px}
+#hover-chip-name{font-size:12px;font-weight:500;color:var(--text-secondary);text-align:right;transition:color 0.2s}
+#map-svg-wrap{width:100%;display:block;line-height:0}
+#map-svg-wrap svg{display:block;width:100%;touch-action:none}
 
-    /* ── Map frame ── */
-    #map-frame {
-      width: 100%; max-width: 1100px; background: var(--surface); border: 1px solid var(--border);
-      border-radius: 20px; overflow: hidden; position: relative;
-      box-shadow: 0 0 0 1px rgba(255,255,255,0.03), 0 40px 100px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.04);
-      touch-action: none;
-    }
-    #hover-chip {
-      position: absolute; top: 16px; right: 16px; z-index: 20;
-      background: rgba(0,0,0,0.82); backdrop-filter: blur(16px);
-      border: 1px solid var(--border2); border-radius: 10px; padding: 8px 14px; min-width: 155px; pointer-events: none;
-    }
-    #hover-chip-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--text-muted); margin-bottom: 3px; }
-    #hover-chip-name { font-size: 12px; font-weight: 500; color: var(--text-secondary); text-align: right; transition: color 0.2s; }
-    #map-svg-wrap { width: 100%; display: block; line-height: 0; }
-    #map-svg-wrap svg { display: block; width: 100%; touch-action: none; }
+/* ── Desktop info card ── */
+#info-card{position:absolute;bottom:20px;left:20px;z-index:30;background:rgba(4,4,4,0.94);backdrop-filter:blur(24px);border:1px solid var(--border2);border-radius:16px;padding:20px 22px 18px;min-width:260px;max-width:310px;max-height:72vh;overflow-y:auto;opacity:0;transform:translateY(10px);pointer-events:none;transition:opacity 0.32s ease,transform 0.32s ease;scrollbar-width:thin;scrollbar-color:#333 transparent}
+#info-card::-webkit-scrollbar{width:3px}
+#info-card::-webkit-scrollbar-thumb{background:#333;border-radius:2px}
+#info-card.visible{opacity:1;transform:translateY(0);pointer-events:auto}
+#info-card-close{position:absolute;top:14px;right:16px;font-size:18px;line-height:1;color:var(--text-muted);cursor:pointer;background:none;border:none;padding:2px 4px;transition:color 0.15s}
+#info-card-close:hover{color:var(--text-secondary)}
+#info-card-phase{font-size:9px;text-transform:uppercase;letter-spacing:0.18em;font-weight:500;margin-bottom:7px}
+#info-card-country{font-family:'Inter Tight',sans-serif;font-size:20px;font-weight:700;color:#fff;letter-spacing:-0.01em;margin-bottom:5px;padding-right:24px}
+#info-card-approach{font-size:11px;color:var(--text-muted);font-style:italic;line-height:1.5;margin-bottom:14px}
+#info-card-divider{height:1px;background:var(--border);margin-bottom:14px}
+#info-card-ngo-label{font-size:9px;text-transform:uppercase;letter-spacing:0.14em;color:var(--text-muted);margin-bottom:10px}
+#info-card-ngos{display:flex;flex-direction:column;gap:0}
 
-    /* ── Desktop info card (overlaid bottom-left inside map) ── */
-    #info-card {
-      position: absolute; bottom: 20px; left: 20px; z-index: 30;
-      background: rgba(4,4,4,0.94); backdrop-filter: blur(24px);
-      border: 1px solid var(--border2); border-radius: 16px;
-      padding: 20px 22px 18px; min-width: 260px; max-width: 310px; max-height: 70vh; overflow-y: auto;
-      opacity: 0; transform: translateY(10px); pointer-events: none;
-      transition: opacity 0.32s ease, transform 0.32s ease;
-      scrollbar-width: thin; scrollbar-color: #333 transparent;
-    }
-    #info-card::-webkit-scrollbar { width: 3px; }
-    #info-card::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
-    #info-card.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
-    #info-card-close { position: absolute; top: 14px; right: 16px; font-size: 18px; line-height: 1; color: var(--text-muted); cursor: pointer; background: none; border: none; padding: 2px 4px; transition: color 0.15s; }
-    #info-card-close:hover { color: var(--text-secondary); }
-    #info-card-phase { font-size: 9px; text-transform: uppercase; letter-spacing: 0.18em; font-weight: 500; margin-bottom: 7px; }
-    #info-card-country { font-family: 'Inter Tight', sans-serif; font-size: 20px; font-weight: 700; color: #fff; letter-spacing: -0.01em; margin-bottom: 5px; padding-right: 24px; }
-    #info-card-approach { font-size: 11px; color: var(--text-muted); font-style: italic; line-height: 1.5; margin-bottom: 14px; }
-    #info-card-divider { height: 1px; background: var(--border); margin-bottom: 14px; }
-    #info-card-ngo-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text-muted); margin-bottom: 10px; }
-    #info-card-ngos { display: flex; flex-direction: column; gap: 0; }
+/* ── Mobile info card ── */
+#mobile-info-card{display:none;width:100%;max-width:1100px;margin-top:12px;position:relative;background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:20px 22px 18px;opacity:0;transform:translateY(8px);pointer-events:none;transition:opacity 0.32s ease,transform 0.32s ease}
+#mobile-info-card.visible{opacity:1;transform:translateY(0);pointer-events:auto}
+#m-card-close{position:absolute;top:14px;right:16px;font-size:22px;line-height:1;color:var(--text-muted);cursor:pointer;background:none;border:none;padding:4px 6px;-webkit-tap-highlight-color:transparent}
+#m-card-phase{font-size:9px;text-transform:uppercase;letter-spacing:0.18em;font-weight:500;margin-bottom:7px}
+#m-card-country{font-family:'Inter Tight',sans-serif;font-size:22px;font-weight:700;color:#fff;letter-spacing:-0.01em;margin-bottom:5px;padding-right:28px}
+#m-card-approach{font-size:12px;color:var(--text-muted);font-style:italic;line-height:1.5;margin-bottom:14px}
+#m-card-divider{height:1px;background:var(--border);margin-bottom:14px}
+#m-card-ngo-label{font-size:9px;text-transform:uppercase;letter-spacing:0.14em;color:var(--text-muted);margin-bottom:10px}
+#m-card-ngos{display:flex;flex-direction:column;gap:0}
 
-    /* ── Mobile info card (below the map, hidden on desktop) ── */
-    #mobile-info-card {
-      display: none;
-      width: 100%; max-width: 1100px; margin-top: 12px; position: relative;
-      background: var(--surface); border: 1px solid var(--border2); border-radius: 16px;
-      padding: 20px 22px 18px;
-      opacity: 0; transform: translateY(8px); pointer-events: none;
-      transition: opacity 0.32s ease, transform 0.32s ease;
-    }
-    #mobile-info-card.visible { display: block; opacity: 1; transform: translateY(0); pointer-events: auto; }
-    #m-card-close { position: absolute; top: 14px; right: 16px; font-size: 22px; line-height: 1; color: var(--text-muted); cursor: pointer; background: none; border: none; padding: 4px 6px; -webkit-tap-highlight-color: transparent; }
-    #m-card-phase { font-size: 9px; text-transform: uppercase; letter-spacing: 0.18em; font-weight: 500; margin-bottom: 7px; }
-    #m-card-country { font-family: 'Inter Tight', sans-serif; font-size: 22px; font-weight: 700; color: #fff; letter-spacing: -0.01em; margin-bottom: 5px; padding-right: 28px; }
-    #m-card-approach { font-size: 12px; color: var(--text-muted); font-style: italic; line-height: 1.5; margin-bottom: 14px; }
-    #m-card-divider { height: 1px; background: var(--border); margin-bottom: 14px; }
-    #m-card-ngo-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text-muted); margin-bottom: 10px; }
-    #m-card-ngos { display: flex; flex-direction: column; gap: 0; }
+/* ── NGO rows (shared) ── */
+.ngo-row{display:flex;flex-direction:column;gap:2px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.ngo-row:last-child{border-bottom:none;padding-bottom:0}
+.ngo-row-top{display:flex;align-items:flex-start;gap:8px}
+.ngo-bullet{width:4px;height:4px;border-radius:50%;flex-shrink:0;margin-top:6px}
+.ngo-name{font-family:'Noto Sans SC','Inter',sans-serif;font-weight:400;font-size:13px;color:rgba(255,255,255,0.85);line-height:1.4;letter-spacing:0.01em}
+.ngo-link{font-size:10px;padding-left:12px;margin-top:2px}
+.ngo-link a{color:rgba(255,255,255,0.3);text-decoration:none;transition:color 0.15s;letter-spacing:0.01em}
+.ngo-link a:hover{color:rgba(255,255,255,0.65)}
 
-    /* shared NGO row styles */
-    .ngo-row { display: flex; flex-direction: column; gap: 2px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
-    .ngo-row:last-child { border-bottom: none; padding-bottom: 0; }
-    .ngo-row-top { display: flex; align-items: flex-start; gap: 8px; }
-    .ngo-bullet { width: 4px; height: 4px; border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
-    .ngo-name { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 300; font-size: 13.5px; color: rgba(255,255,255,0.8); line-height: 1.4; letter-spacing: 0.01em; }
-    .ngo-focus { font-size: 10px; color: var(--text-muted); line-height: 1.4; padding-left: 12px; }
-    .ngo-link { font-size: 10px; padding-left: 12px; margin-top: 2px; }
-    .ngo-link a { color: rgba(255,255,255,0.3); text-decoration: none; transition: color 0.15s; letter-spacing: 0.01em; }
-    .ngo-link a:hover { color: rgba(255,255,255,0.65); }
+/* ── Objective ── */
+#objective{width:100%;max-width:1100px;margin-top:14px;padding:14px 20px;border-radius:12px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:stretch;gap:14px;transition:border-color 0.35s;min-height:56px}
+#objective-accent{width:3px;border-radius:2px;background:var(--border2);flex-shrink:0;transition:background 0.35s}
+#objective-text{font-size:13px;line-height:1.7;color:var(--text-muted);transition:color 0.35s;align-self:center}
 
-    /* ── Objective ── */
-    #objective { width: 100%; max-width: 1100px; margin-top: 14px; padding: 14px 20px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); display: flex; align-items: stretch; gap: 14px; transition: border-color 0.35s; min-height: 56px; }
-    #objective-accent { width: 3px; border-radius: 2px; background: var(--border2); flex-shrink: 0; transition: background 0.35s; }
-    #objective-text { font-size: 13px; line-height: 1.7; color: var(--text-muted); transition: color 0.35s; align-self: center; }
+/* ── Disclaimer ── */
+#disclaimer{width:100%;max-width:1100px;margin-top:24px;font-size:11px;color:#333;line-height:1.65;text-align:center}
 
-    /* ── Legend ── */
-    #legend { display: flex; gap: 28px; margin-top: 20px; flex-wrap: wrap; justify-content: center; }
-    .legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-muted); letter-spacing: 0.03em; transition: color 0.25s; }
-    .legend-item.active { color: var(--text-secondary); }
-    .legend-swatch { width: 10px; height: 10px; border-radius: 3px; opacity: 0.45; transition: opacity 0.25s; }
-    .legend-item.active .legend-swatch { opacity: 1; }
+/* ── SVG annotation text ── */
+.ngo-annotation{font-family:'Noto Sans SC','Cormorant Garamond',Georgia,serif;font-style:italic;font-weight:300}
 
-    #disclaimer { width: 100%; max-width: 1100px; margin-top: 24px; font-size: 11px; color: #333; line-height: 1.65; text-align: center; }
-
-    .ngo-annotation { font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-weight: 300; }
-
-    /* ════════════════════════════
-       MOBILE  ≤ 767px
-    ════════════════════════════ */
-    @media (max-width: 767px) {
-      body { padding: 28px 16px 52px; }
-
-      #eyebrow { font-size: 10px; margin-bottom: 10px; }
-      #main-title { font-size: 22px; margin-bottom: 8px; }
-      #subtitle { font-size: 13px; min-height: unset; }
-
-      /* Stack buttons full-width, consistent alignment */
-      #controls { flex-direction: column; align-items: stretch; gap: 8px; margin-bottom: 16px; }
-      .phase-btn { padding: 13px 20px; white-space: normal; justify-content: flex-start; align-items: center; }
-      .phase-btn .btn-phase-num { min-width: 56px; }
-      .phase-btn .btn-sep { flex-shrink: 0; }
-      .phase-btn .btn-desc { flex: 1; text-align: left; line-height: 1.35; }
-      #btn-reset { align-self: center; }
-
-      /* Map taller so world is visible in portrait */
-      #map-frame { border-radius: 14px; }
-      #map-svg-wrap svg { height: 260px !important; }
-
-      /* No hover chip on touch */
-      #hover-chip { display: none; }
-
-      /* Swap cards: hide desktop overlay, show mobile card below */
-      #info-card { display: none !important; }
-      #mobile-info-card { display: none; }
-      #mobile-info-card.visible { display: block; }
-
-      #objective { padding: 12px 14px; }
-      #objective-text { font-size: 12px; }
-
-      #legend { flex-direction: column; align-items: flex-start; gap: 10px; padding: 0 2px; }
-      .legend-item { font-size: 11px; }
-    }
-
-    /* ════════════════════════════
-       SMALL TABLET  768–1023px
-    ════════════════════════════ */
-    @media (min-width: 768px) and (max-width: 1023px) {
-      body { padding: 40px 24px 60px; }
-      #main-title { font-size: 26px; }
-      .phase-btn { padding: 10px 20px; font-size: 12px; }
-      .phase-btn .btn-desc { font-size: 11px; }
-    }
-  </style>
+/* ══ MOBILE ══ */
+@media(max-width:767px){
+  body{padding:28px 16px 52px}
+  #eyebrow{font-size:10px;margin-bottom:10px}
+  #main-title{font-size:22px;margin-bottom:8px}
+  #subtitle{font-size:13px;min-height:unset}
+  #controls{flex-direction:column;align-items:stretch;gap:8px;margin-bottom:16px}
+  .phase-btn{padding:13px 20px;white-space:normal;justify-content:flex-start}
+  #btn-clear{align-self:center}
+  #map-frame{border-radius:14px}
+  #map-svg-wrap svg{height:260px!important}
+  #hover-chip{display:none}
+  #info-card{display:none!important}
+  #mobile-info-card{display:block}
+  #mobile-info-card.visible{display:block}
+  #objective{padding:12px 14px}
+  #objective-text{font-size:12px}
+  #disclaimer{padding:0 4px}
+}
+@media(min-width:768px) and (max-width:1023px){
+  body{padding:40px 24px 60px}
+  #main-title{font-size:26px}
+  .phase-btn{padding:10px 20px;font-size:12px}
+  .phase-btn .btn-desc{font-size:11px}
+}
+</style>
 </head>
 <body>
 
-<div id="header">
-  <div id="eyebrow">I Share · Green IT Classrooms Initiative</div>
-  <h1 id="main-title">Zhonggu Global Scaling Strategy</h1>
-  <p id="subtitle">Identifying NGO partners to expand Green IT Classroom coverage across developing and developed markets worldwide.</p>
+<!-- Lang toggle -->
+<div id="lang-bar">
+  <div id="lang-toggle">
+    <button class="lang-btn active" id="lang-en" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" id="lang-cn" onclick="setLang('cn')">中文</button>
+  </div>
 </div>
 
+<!-- Header -->
+<div id="header">
+  <div id="eyebrow"></div>
+  <h1 id="main-title"></h1>
+  <p id="subtitle"></p>
+</div>
+
+<!-- Phase controls -->
 <div id="controls">
   <button class="phase-btn" id="btn1" onclick="togglePhase(1)">
     <span class="btn-dot" style="background:var(--p1)"></span>
-    <span class="btn-phase-num">Phase 1</span>
+    <span class="btn-num" id="btn1-num"></span>
     <span class="btn-sep">·</span>
-    <span class="btn-desc">Developing countries with friendly legislation</span>
+    <span class="btn-desc" id="btn1-desc"></span>
   </button>
   <button class="phase-btn" id="btn2" onclick="togglePhase(2)">
     <span class="btn-dot" style="background:var(--p2)"></span>
-    <span class="btn-phase-num">Phase 2</span>
+    <span class="btn-num" id="btn2-num"></span>
     <span class="btn-sep">·</span>
-    <span class="btn-desc">Developing countries with restrictive legislation</span>
+    <span class="btn-desc" id="btn2-desc"></span>
   </button>
   <button class="phase-btn" id="btn3" onclick="togglePhase(3)">
     <span class="btn-dot" style="background:var(--p3)"></span>
-    <span class="btn-phase-num">Phase 3</span>
+    <span class="btn-num" id="btn3-num"></span>
     <span class="btn-sep">·</span>
-    <span class="btn-desc">Developed countries</span>
+    <span class="btn-desc" id="btn3-desc"></span>
   </button>
-  <button id="btn-reset" onclick="resetAll()">Clear</button>
+  <button id="btn-clear" onclick="resetAll()"></button>
 </div>
 
+<!-- Map -->
 <div id="map-frame">
   <div id="hover-chip">
-    <div id="hover-chip-label">Country</div>
+    <div id="hover-chip-label"></div>
     <div id="hover-chip-name">—</div>
   </div>
   <div id="info-card">
@@ -226,265 +179,138 @@
     <div id="info-card-country"></div>
     <div id="info-card-approach"></div>
     <div id="info-card-divider"></div>
-    <div id="info-card-ngo-label">NGO Partners</div>
+    <div id="info-card-ngo-label"></div>
     <div id="info-card-ngos"></div>
   </div>
   <div id="map-svg-wrap"></div>
 </div>
+
+<!-- Mobile card -->
 <div id="mobile-info-card">
   <button id="m-card-close" onclick="closeMobileCard()">×</button>
   <div id="m-card-phase"></div>
   <div id="m-card-country"></div>
   <div id="m-card-approach"></div>
-  <div style="height:1px;background:var(--border);margin-bottom:14px;"></div>
-  <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.14em;color:var(--text-muted);margin-bottom:10px;">NGO Partners</div>
+  <div style="height:1px;background:var(--border);margin-bottom:14px"></div>
+  <div id="m-card-ngo-label" style="font-size:9px;text-transform:uppercase;letter-spacing:0.14em;color:var(--text-muted);margin-bottom:10px"></div>
   <div id="m-card-ngos"></div>
 </div>
 
+<!-- Objective -->
 <div id="objective">
   <div id="objective-accent"></div>
-  <div id="objective-text">Select a phase above to explore the strategic objective and highlight target countries on the map.</div>
+  <div id="objective-text"></div>
 </div>
 
-<p id="disclaimer">These countries and NGOs represent suggested opportunities for expansion and partnership development. Final prioritization may evolve based on the defined scaling strategy and available resources.</p>
+<!-- Disclaimer -->
+<p id="disclaimer"></p>
 
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script>
-const PHASES = {
-  1: {
-    color: "#22c55e", hover: "#4ade80", glow: "rgba(34,197,94,0.22)",
-    label: "Phase 1", approach: "Guided journey — Zhonggu leads execution",
-    subtitle: "Direct deployment in countries with manageable import regulations and strong local NGO capacity.",
-    objective: "Enable direct deployment of Green IT Classrooms by shipping limited volumes of refurbished computers from China, combined with strong local capacity building, to countries where import regulations are manageable.",
-    countries: {
-      "Colombia": {
-        dx: -42, dy: 18, anchor: "end",
-        ngos: [
-          { name: "SiembraTIC", website: "https://siembratic.org", focus: "Connectivity and devices for vulnerable students" },
-          { name: "Fundación Transformemos", website: "https://transformemos.edu.co", focus: "ICT-enabled education" },
-        ]
-      },
-      "Cambodia": {
-        dx: 24, dy: 8, anchor: "start",
-        ngos: [
-          { name: "KAPE", website: "https://kapekh.org", focus: "ICT classrooms and digital education" },
-          { name: "Passerelles Numériques Cambodia", website: "https://passerellesnumeriques.org", focus: "Tech education and employability" },
-        ]
-      },
-      "Laos": {
-        dx: 22, dy: -10, anchor: "start",
-        ngos: [
-          { name: "Child's Dream", website: "https://childsdream.org", focus: "Computer labs and rural education" },
-          { name: "Pencils of Promise", website: "https://pencilsofpromise.org", focus: "Education infrastructure" },
-        ]
-      },
-      "Mongolia": {
-        dx: 28, dy: -12, anchor: "start",
-        ngos: [
-          { name: "Girls Code Mongolia", website: "https://girlscodemongolia.org", focus: "Digital skills and inclusion" },
-          { name: "ICT for Education Mongolia", website: "https://ictem.edu.mn", focus: "ICT in education" },
-        ]
-      },
-      "Pakistan": {
-        dx: -40, dy: -10, anchor: "end",
-        ngos: [
-          { name: "Moawin Foundation", website: "https://mf.org.pk", focus: "Education and development" },
-          { name: "The Citizens Foundation", website: "https://tcf.org.pk", focus: "Education access" },
-        ]
-      },
-      "Peru": {
-        dx: -36, dy: 16, anchor: "end",
-        ngos: [
-          { name: "Laboratoria", website: "https://laboratoria.la", focus: "Tech training and employability" },
-          { name: "Enseña Perú", website: "https://ensenaperu.org", focus: "Education system improvement" },
-        ]
-      },
-      "Philippines": {
-        dx: 28, dy: 12, anchor: "start",
-        ngos: [
-          { name: "FIT-ED", website: "https://fit-ed.org", focus: "ICT for education" },
-          { name: "Passerelles Numériques Philippines", website: "https://passerellesnumeriques.org", focus: "Tech education" },
-        ]
-      },
-      "Timor-Leste": {
-        dx: 30, dy: 20, anchor: "start",
-        ngos: [
-          { name: "World Computer Exchange", website: "https://worldcomputerexchange.org", focus: "Computer donations" },
-          { name: "Alola Foundation", website: "https://alolafoundation.org", focus: "Community development" },
-        ]
-      },
-    }
+// ═══════════════════════════════════════════
+// COPY
+// ═══════════════════════════════════════════
+const COPY = {
+  en: {
+    eyebrow: "I Share · Green IT Classrooms Initiative",
+    title: "Zhonggu Global Scaling Strategy",
+    subtitle: "Identifying NGO partners to expand Green IT Classroom coverage across developing and developed markets worldwide.",
+    p1num: "Phase 1", p1desc: "Developing countries with friendly legislation",
+    p2num: "Phase 2", p2desc: "Developing countries with restrictive legislation",
+    p3num: "Phase 3", p3desc: "Developed countries",
+    clear: "Clear",
+    hover: "Country",
+    ngoLabel: "NGO Partners",
+    approach: { 1:"Guided journey — Zhonggu leads execution", 2:"Collaborative journey — Zhonggu enables execution", 3:"Strategic journey — Zhonggu enables & amplifies" },
+    objective: {
+      0: "Select a phase above to explore the strategic objective and highlight target countries on the map.",
+      1: "Enable direct deployment of Green IT Classrooms by shipping limited volumes of refurbished computers from China, combined with strong local capacity building, to countries where import regulations are manageable.",
+      2: "Export Zhonggu's proven circular economy and digital education model through knowledge transfer and local capacity building to countries with more complex import environments.",
+      3: "Build brand influence, advocate for Zhonggu's circular-economy + rural education model, and mobilize resources — funding, expertise, and partnerships — to support programs globally."
+    },
+    subtitle_phase: {
+      1: "Direct deployment in countries with manageable import regulations and strong local NGO capacity.",
+      2: "Exporting Zhonggu's circular economy model through knowledge transfer in markets with complex import environments.",
+      3: "Building brand influence and mobilizing funding, expertise, and partnerships from developed-country institutions."
+    },
+    disclaimer: "These countries and NGOs represent suggested opportunities for expansion and partnership development. Final prioritization may evolve based on the defined scaling strategy and available resources."
   },
-  2: {
-    color: "#eab308", hover: "#facc15", glow: "rgba(234,179,8,0.22)",
-    label: "Phase 2", approach: "Collaborative journey — Zhonggu enables execution",
-    subtitle: "Exporting Zhonggu's circular economy model through knowledge transfer in markets with complex import environments.",
-    objective: "Export Zhonggu's proven circular economy and digital education model through knowledge transfer and local capacity building to countries with more complex import environments.",
-    countries: {
-      "Argentina": {
-        dx: -34, dy: 18, anchor: "end",
-        ngos: [
-          { name: "Fundación Equidad", website: "https://equidad.org", focus: "Refurbished computers" },
-          { name: "Chicos.net", website: "https://chicos.net", focus: "Digital education" },
-        ]
-      },
-      "Kenya": {
-        dx: 24, dy: 10, anchor: "start",
-        ngos: [
-          { name: "Computers for Schools Kenya", website: "https://cfsk.org", focus: "Computer labs" },
-          { name: "Camara Education", website: "https://camara.org", focus: "Digital education" },
-        ]
-      },
-      "Morocco": {
-        dx: -24, dy: -12, anchor: "end",
-        ngos: [
-          { name: "Al Jisr Association", website: "https://aljisr.org", focus: "School support" },
-          { name: "INJAZ Al-Maghrib", website: "https://injaz-ma.org", focus: "Education programs" },
-        ]
-      },
-      "South Africa": {
-        dx: 26, dy: 18, anchor: "start",
-        ngos: [
-          { name: "SchoolNet South Africa", website: "https://schoolnet.org.za", focus: "ICT in schools" },
-          { name: "IkamvaYouth", website: "https://ikamvayouth.org", focus: "Youth education" },
-        ]
-      },
-      "Uganda": {
-        dx: 24, dy: -6, anchor: "start",
-        ngos: [
-          { name: "Camara Education", website: "https://camara.org", focus: "ICT infrastructure" },
-          { name: "Uconnect Uganda", website: "https://uconnectug.org", focus: "Connectivity access" },
-        ]
-      },
-      "Bolivia": {
-        dx: -30, dy: 14, anchor: "end",
-        ngos: [
-          { name: "Fundación Jala", website: "https://jala.org", focus: "Tech education" },
-          { name: "Ayni Bolivia", website: "https://ayni.org.bo", focus: "Community development" },
-        ]
-      },
-      "Brazil": {
-        dx: 30, dy: 14, anchor: "start",
-        ngos: [
-          { name: "Programando o Futuro", website: "https://programandoofuturo.org.br", focus: "E-waste refurbishment" },
-          { name: "CDI", website: "https://cdi.org.br", focus: "Digital inclusion" },
-        ]
-      },
-      "Bulgaria": {
-        dx: 24, dy: -12, anchor: "start",
-        ngos: [
-          { name: "Teach for Bulgaria", website: "https://zaednovchas.bg", focus: "Education system" },
-          { name: "BCause Foundation", website: "https://bcause.bg", focus: "Social impact" },
-        ]
-      },
-      "Chile": {
-        dx: -32, dy: 10, anchor: "end",
-        ngos: [
-          { name: "Fundación Chilenter", website: "https://chilenter.cl", focus: "Refurbished tech" },
-          { name: "Enseña Chile", website: "https://ensenachile.cl", focus: "Education" },
-        ]
-      },
-      "Cuba": {
-        dx: -28, dy: -9, anchor: "end",
-        ngos: [
-          { name: "Joven Club de Computación", website: "https://jovenclub.cu", focus: "Digital access" },
-        ]
-      },
-      "Ecuador": {
-        dx: -30, dy: 8, anchor: "end",
-        ngos: [
-          { name: "Fundación Telefónica Ecuador", website: "https://fundaciontelefonica.com.ec", focus: "Digital education" },
-          { name: "Enseña Ecuador", website: "https://ensenaecuador.org", focus: "Education" },
-        ]
-      },
-      "Indonesia": {
-        dx: 30, dy: 14, anchor: "start",
-        ngos: [
-          { name: "Relawan TIK Indonesia", website: "https://relawantik.or.id", focus: "ICT literacy" },
-          { name: "Indonesia Mengajar", website: "https://indonesiamengajar.org", focus: "Education" },
-        ]
-      },
-      "Mexico": {
-        dx: -30, dy: -12, anchor: "end",
-        ngos: [
-          { name: "Enseña por México", website: "https://ensenapormexico.org", focus: "Education" },
-          { name: "Fundación Proacceso", website: "https://proacceso.org.mx", focus: "Digital inclusion" },
-        ]
-      },
-      "Thailand": {
-        dx: 28, dy: 8, anchor: "start",
-        ngos: [
-          { name: "Child's Dream", website: "https://childsdream.org", focus: "Education" },
-          { name: "Code for Thailand", website: "https://codeforthailand.org", focus: "Civic tech" },
-        ]
-      },
-    }
-  },
-  3: {
-    color: "#3b82f6", hover: "#60a5fa", glow: "rgba(59,130,246,0.22)",
-    label: "Phase 3", approach: "Strategic journey — Zhonggu enables & amplifies",
-    subtitle: "Building brand influence and mobilizing funding, expertise, and partnerships from developed-country institutions.",
-    objective: "Build brand influence, advocate for Zhonggu's circular-economy + rural education model, and mobilize resources — funding, expertise, and partnerships — to support programs globally.",
-    countries: {
-      "Canada": {
-        dx: -36, dy: -14, anchor: "end",
-        ngos: [
-          { name: "Computers for Schools Canada", website: "https://ised-isde.canada.ca", focus: "Refurbished computers" },
-          { name: "Digital Opportunity Trust", website: "https://dotrust.org", focus: "Digital skills" },
-        ]
-      },
-      "Germany": {
-        dx: 38, dy: 6, anchor: "start",
-        ngos: [
-          { name: "Labdoo", website: "https://labdoo.org", focus: "Laptop reuse" },
-          { name: "AfB Social & Green IT", website: "https://afb-group.eu", focus: "IT refurbishment" },
-        ]
-      },
-      "Japan": {
-        dx: 26, dy: -12, anchor: "start",
-        ngos: [
-          { name: "Kokkyo naki Kodomotachi", website: "https://knk.or.jp", focus: "Youth support" },
-          { name: "e-Education Japan", website: "https://eedu.jp", focus: "Digital learning" },
-        ]
-      },
-      "Netherlands": {
-        dx: -38, dy: -4, anchor: "end",
-        ngos: [
-          { name: "Close the Gap", website: "https://closethegap.org", focus: "IT donations" },
-          { name: "Digital for Development", website: "https://d4d.net", focus: "Digital development" },
-        ]
-      },
-      "Norway": {
-        dx: 42, dy: -10, anchor: "start",
-        ngos: [
-          { name: "NFU Norway", website: "https://nfunorge.org", focus: "Inclusion" },
-          { name: "Kirkens Nødhjelp", website: "https://kirkensnodhjelp.no", focus: "Humanitarian" },
-        ]
-      },
-      "South Korea": {
-        dx: 24, dy: -12, anchor: "start",
-        ngos: [
-          { name: "NIA", website: "https://nia.or.kr", focus: "Digital inclusion" },
-          { name: "Beautiful Foundation", website: "https://beautifulfund.org", focus: "Social impact" },
-        ]
-      },
-      "United Kingdom": {
-        dx: -44, dy: -18, anchor: "end",
-        ngos: [
-          { name: "Computer Aid International", website: "https://computeraid.org", focus: "Refurbished computers" },
-          { name: "Good Things Foundation", website: "https://goodthingsfoundation.org", focus: "Digital inclusion" },
-        ]
-      },
-      "United States": {
-        dx: -36, dy: -14, anchor: "end",
-        ngos: [
-          { name: "National Cristina Foundation", website: "https://cristina.org", focus: "Tech matching" },
-          { name: "TechSoup", website: "https://techsoup.org", focus: "Tech access" },
-        ]
-      },
-    }
+  cn: {
+    eyebrow: "I Share · 绿色IT教室计划",
+    title: "众谷全球扩展战略",
+    subtitle: "寻找非政府组织合作伙伴，以扩大绿色IT教室在全球发展中国家和发达市场的覆盖范围。",
+    p1num: "第一阶段", p1desc: "立法友好的发展中国家",
+    p2num: "第二阶段", p2desc: "立法限制性发展中国家",
+    p3num: "第三阶段", p3desc: "发达国家",
+    clear: "清除",
+    hover: "国家",
+    ngoLabel: "非政府组织合作伙伴",
+    approach: { 1:"引导式——众谷主导执行", 2:"协作式——众谷赋能执行", 3:"战略式——众谷赋能提升" },
+    objective: {
+      0: "请选择上方阶段，探索战略目标并在地图上高亮显示目标国家。",
+      1: "通过从中国运输一定数量的翻新电脑，结合强有力的本地能力建设，在进口法规可行的国家直接部署绿色IT教室。",
+      2: "将众谷成熟的循环经济与数字教育模式，通过知识转让和本地能力建设，输出到进口法规更具局限性的国家。",
+      3: "打造品牌影响力，推广众谷“循环经济 + 乡村教育”模式，并调动资金、专业力量及合作伙伴等资源，支持全球项目落地。"
+    },
+    subtitle_phase: {
+      1: "在进口法规相对宽松、且本地非政府组织能力较强的国家直接部署。",
+      2: "在进口环境复杂的市场通过知识转移输出众谷循环经济模式。",
+      3: "打造品牌影响力，并从发达国家机构调动资金、专业知识和合作关系。"
+    },
+    disclaimer: "这些国家和非政府组织代表扩张和合作发展的建议机会。最终优先排序可能根据确定的扩展战略和可用资源而调整。"
   }
+};
+
+// ═══════════════════════════════════════════
+// NGO DATA (from Excel)
+// ═══════════════════════════════════════════
+const NGO_DATA = {
+  "Colombia":     { phase:1, ngos:[{name:"Turing Trust",name_cn:"Turing Trust",url:"https://turingtrust.co.uk/"},{name:"Labdoo",name_cn:"Labdoo",url:"https://www.labdoo.org/en/"},{name:"Fundación Transformemos",name_cn:"Fundación Transformemos",url:"https://www.fundacionclick.org/"}]},
+  "Cambodia":     { phase:1, ngos:[{name:"Labdoo",name_cn:"Labdoo",url:"https://www.labdoo.org/en/"},{name:"LiteHaus International",name_cn:"LiteHaus International",url:"https://litehausinternational.org"},{name:"REACH Siem Reap",name_cn:"REACH Siem Reap",url:"https://reachsiemreap.org/computer-literacy/"}]},
+  "Laos":         { phase:1, ngos:[{name:"Labdoo",name_cn:"Labdoo",url:"https://www.labdoo.org/en/"},{name:"IT for Laos",name_cn:"IT for Laos",url:"https://www.basmati.ch/en/it-for-laos-3-0.html"}]},
+  "Mongolia":     { phase:1, ngos:[{name:"Labdoo",name_cn:"Labdoo",url:"https://www.labdoo.org/en/"},{name:"Labdoo Mongolia (WeTomorrow)",name_cn:"Labdoo（总部：瑞士）",url:"https://labdoo.ch/en/educational-institution/wetomorrow-mongolia/"}]},
+  "Pakistan":     { phase:1, ngos:[{name:"Turing Trust",name_cn:"Turing Trust",url:"https://turingtrust.co.uk/"},{name:"Labdoo",name_cn:"Labdoo",url:"https://www.labdoo.org/en/"},{name:"Moawin Foundation",name_cn:"Moawin Foundation",url:"https://mf.org.pk"}]},
+  "Peru":         { phase:1, ngos:[{name:"Labdoo",name_cn:"Labdoo",url:"https://www.labdoo.org/en/"},{name:"Recicla, Tecnología y Educación (RETE)",name_cn:"Recicla, Tecnología y Educación (RETE)",url:"https://www.reciclaelectronic.com"}]},
+  "Philippines":  { phase:1, ngos:[{name:"Labdoo",name_cn:"Labdoo",url:"https://www.labdoo.org/en/"},{name:"LiteHaus International",name_cn:"LiteHaus International",url:"https://litehausinternational.org"}]},
+  "Timor-Leste":  { phase:1, ngos:[{name:"Labdoo",name_cn:"Labdoo",url:"https://www.labdoo.org/en/"},{name:"LiteHaus International",name_cn:"LiteHaus International",url:"https://litehausinternational.org"}]},
+  "Argentina":    { phase:2, ngos:[{name:"Labdoo",name_cn:"Labdoo",url:"https://www.labdoo.org/en/"},{name:"Fundación Equidad",name_cn:"Fundación Equidad",url:"https://www.equidad.org"}]},
+  "Kenya":        { phase:2, ngos:[{name:"Close the Gap",name_cn:"Close the Gap",url:"https://www.close-the-gap.org"},{name:"Computer Aid",name_cn:"Computer Aid",url:"https://www.computeraid.org/"},{name:"Camara Education",name_cn:"Camara Education",url:"https://camara.org/"},{name:"Turing Trust",name_cn:"Turing Trust",url:"https://turingtrust.co.uk/"},{name:"Labdoo",name_cn:"Labdoo",url:"https://www.labdoo.org/en/"},{name:"Camara Education Kenya",name_cn:"Camara Education Kenya",url:"https://camara.org/kenya/"}]},
+  "Morocco":      { phase:2, ngos:[{name:"Close the Gap",name_cn:"Close the Gap",url:"https://www.close-the-gap.org"},{name:"Computer Aid",name_cn:"Computer Aid",url:"https://www.computeraid.org/"},{name:"Labdoo",name_cn:"Labdoo",url:"https://www.labdoo.org/en/"}]},
+  "South Africa": { phase:2, ngos:[{name:"Close the Gap",name_cn:"Close the Gap",url:"https://www.close-the-gap.org"},{name:"Computer Aid",name_cn:"Computer Aid",url:"https://www.computeraid.org/"},{name:"Labdoo",name_cn:"Labdoo",url:"https://www.labdoo.org/en/"},{name:"SchoolNet SA",name_cn:"SchoolNet SA",url:"https://www.schoolnet.org.za"}]},
+  "Uganda":       { phase:2, ngos:[{name:"Close the Gap",name_cn:"Close the Gap",url:"https://www.close-the-gap.org"},{name:"Labdoo",name_cn:"Labdoo",url:"https://www.labdoo.org/en/"},{name:"CFS Uganda",name_cn:"CFS Uganda",url:"https://cfsuganda.org/"}]},
+  "Bolivia":      { phase:2, ngos:[{name:"Labdoo",name_cn:"Labdoo",url:"https://www.labdoo.org/en/"},{name:"Fundación VIVA",name_cn:"Fundación VIVA",url:"https://www.fundacion-viva.org"}]},
+  "Brazil":       { phase:2, ngos:[{name:"Labdoo",name_cn:"Labdoo",url:"https://www.labdoo.org/en/"},{name:"Programando o Futuro",name_cn:"Programando o Futuro",url:"https://www.programandoofuturo.org.br"},{name:"Computadores para Inclusão (CpI)",name_cn:"Computadores para Inclusão (CpI)",url:"https://www.gov.br/mcom/pt-br/acesso-a-informacao/acoes-e-programas/computadores-para-inclusao"}]},
+  "Bulgaria":     { phase:2, ngos:[{name:"Labdoo",name_cn:"Labdoo",url:"https://www.labdoo.org/en/"},{name:"ITAD Bulgaria",name_cn:"ITAD Bulgaria",url:"https://itad.bg/en"}]},
+  "Chile":        { phase:2, ngos:[{name:"Labdoo",name_cn:"Labdoo",url:"https://www.labdoo.org/en/"},{name:"Kyklos",name_cn:"Kyklos",url:"https://kyklos.cl"}]},
+  "Cuba":         { phase:2, ngos:[{name:"Labdoo",name_cn:"Labdoo",url:"https://www.labdoo.org/en/"},{name:"Viva La Educación",name_cn:"Viva La Educación",url:"https://vivaeducacion.org.uk"}]},
+  "Ecuador":      { phase:2, ngos:[{name:"Labdoo",name_cn:"Labdoo",url:"https://www.labdoo.org/en/"},{name:"Tandana Foundation",name_cn:"Tandana Foundation",url:"https://tandanafoundation.org/education.html"}]},
+  "Indonesia":    { phase:2, ngos:[{name:"Labdoo",name_cn:"Labdoo",url:"https://www.labdoo.org/en/"},{name:"YCAB Foundation",name_cn:"YCAB Foundation",url:"https://ycabfoundation.org"}]},
+  "Mexico":       { phase:2, ngos:[{name:"Labdoo",name_cn:"Labdoo",url:"https://www.labdoo.org/en/"},{name:"UNETE",name_cn:"UNETE",url:"https://unete.org"}]},
+  "Thailand":     { phase:2, ngos:[{name:"Labdoo",name_cn:"Labdoo",url:"https://www.labdoo.org/en/"},{name:"Mirror Foundation",name_cn:"Mirror Foundation",url:"https://mirror.or.th"}]},
+  "Netherlands":  { phase:3, ngos:[{name:"DEAN",name_cn:"DEAN",url:"https://dean.ngo"},{name:"Labdoo",name_cn:"Labdoo",url:"https://www.labdoo.org/en/"},{name:"IT4Kids",name_cn:"IT4Kids",url:"https://it4kids.com"}]},
+  "Canada":       { phase:3, ngos:[{name:"Labdoo",name_cn:"Labdoo",url:"https://www.labdoo.org/en/"},{name:"Computers for Schools Plus (CFS+)",name_cn:"Computers for Schools Plus (CFS+)",url:"https://ic.gc.ca/cfs"}]},
+  "Germany":      { phase:3, ngos:[{name:"Labdoo",name_cn:"Labdoo",url:"https://www.labdoo.org/en/"},{name:"Labdoo (International HQ: Switzerland)",name_cn:"Labdoo（总部：瑞士）",url:"https://www.labdoo.org/en/"}]},
+  "Japan":        { phase:3, ngos:[{name:"Labdoo",name_cn:"Labdoo",url:"https://www.labdoo.org/en/"},{name:"Lights On Children",name_cn:"Lights On Children",url:"https://lightson-children.com"}]},
+  "Norway":       { phase:3, ngos:[{name:"Labdoo",name_cn:"Labdoo",url:"https://www.labdoo.org/en/"},{name:"Redd Barna (Save the Children)",name_cn:"Redd Barna（拯救儿童）",url:"https://reddbarna.no"}]},
+  "South Korea":  { phase:3, ngos:[{name:"Labdoo",name_cn:"Labdoo",url:"https://www.labdoo.org/en/"},{name:"Good Neighbors",name_cn:"Good Neighbors",url:"https://goodneighbors.kr"}]},
+  "United Kingdom":{ phase:3, ngos:[{name:"Labdoo",name_cn:"Labdoo",url:"https://www.labdoo.org/en/"},{name:"The Turing Trust",name_cn:"The Turing Trust",url:"https://turingtrust.co.uk"}]},
+  "United States":{ phase:3, ngos:[{name:"Labdoo",name_cn:"Labdoo",url:"https://www.labdoo.org/en/"},{name:"National Cristina Foundation",name_cn:"National Cristina Foundation",url:"https://www.cristina.org"}]}
+};
+
+// Annotation offsets [dx, dy, anchor]
+const LABEL_OFF = {
+  "Colombia":[-38,18,"end"],"Cambodia":[22,8,"start"],"Laos":[20,-10,"start"],
+  "Mongolia":[28,-12,"start"],"Pakistan":[-38,-10,"end"],"Peru":[-34,16,"end"],
+  "Philippines":[28,12,"start"],"Timor-Leste":[30,20,"start"],
+  "Argentina":[-32,18,"end"],"Kenya":[22,10,"start"],"Morocco":[-22,-10,"end"],
+  "South Africa":[24,18,"start"],"Uganda":[22,-6,"start"],"Bolivia":[-28,14,"end"],
+  "Brazil":[28,14,"start"],"Bulgaria":[22,-12,"start"],"Chile":[-30,10,"end"],
+  "Cuba":[-26,-9,"end"],"Ecuador":[-30,8,"end"],"Indonesia":[28,14,"start"],
+  "Mexico":[-28,-12,"end"],"Thailand":[26,8,"start"],
+  "Canada":[-36,-14,"end"],"Germany":[38,6,"start"],"Japan":[36,-18,"start"],
+  "Netherlands":[-38,-4,"end"],"Norway":[42,-10,"start"],"South Korea":[26,10,"start"],
+  "United Kingdom":[-44,-18,"end"],"United States":[-34,-14,"end"]
 };
 
 const CENTROIDS = {
@@ -495,7 +321,7 @@ const CENTROIDS = {
   "Chile":[-71,-30],"Cuba":[-79.5,21.8],"Ecuador":[-78.2,-1.3],"Indonesia":[117,-2.5],
   "Mexico":[-102,23.5],"Thailand":[100.9,15.4],
   "Canada":[-96,60],"Germany":[10.5,51],"Japan":[138,36],"Netherlands":[5.3,52.1],
-  "Norway":[15,65],"South Korea":[127.5,36.5],"United Kingdom":[-2,54],"United States":[-98,39],
+  "Norway":[15,65],"South Korea":[127.5,36.5],"United Kingdom":[-2,54],"United States":[-98,39]
 };
 
 const ALIASES = {
@@ -505,330 +331,416 @@ const ALIASES = {
   "Bolivia":["Bolivia (Plurinational State of)","Plurinational State of Bolivia"],
   "South Korea":["Republic of Korea","Korea","Korea, Republic of"],
   "United Kingdom":["UK","Great Britain"],
-  "United States":["United States of America","USA"],
+  "United States":["United States of America","USA"]
 };
 
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let lang = 'en';
 let activePhase = null;
 let svgG, zoomBehavior, svgEl, projFn, annotationsG;
 let selectedCountry = null;
 
+// ═══════════════════════════════════════════
+// LANGUAGE
+// ═══════════════════════════════════════════
+function setLang(l) {
+  lang = l;
+  document.getElementById('lang-en').classList.toggle('active', l==='en');
+  document.getElementById('lang-cn').classList.toggle('active', l==='cn');
+  document.documentElement.lang = l==='cn' ? 'zh-CN' : 'en';
+  renderUI();
+  // Re-render card if open
+  if (selectedCountry) {
+    if (window.innerWidth <= 767) showMobileCard(selectedCountry);
+    else showCard(selectedCountry);
+  }
+  // Re-render annotations
+  if (activePhase !== null) drawAnnotations();
+}
+
+function t(key) { return COPY[lang][key] || COPY.en[key]; }
+
+function renderUI() {
+  const C = COPY[lang];
+  document.getElementById('eyebrow').textContent = C.eyebrow;
+  document.getElementById('main-title').textContent = C.title;
+  document.getElementById('subtitle').textContent = activePhase ? C.subtitle_phase[activePhase] : C.subtitle;
+  document.getElementById('btn1-num').textContent = C.p1num;
+  document.getElementById('btn1-desc').textContent = C.p1desc;
+  document.getElementById('btn2-num').textContent = C.p2num;
+  document.getElementById('btn2-desc').textContent = C.p2desc;
+  document.getElementById('btn3-num').textContent = C.p3num;
+  document.getElementById('btn3-desc').textContent = C.p3desc;
+  document.getElementById('btn-clear').textContent = C.clear;
+  document.getElementById('hover-chip-label').textContent = C.hover;
+  document.getElementById('objective-text').textContent = activePhase ? C.objective[activePhase] : C.objective[0];
+  document.getElementById('disclaimer').textContent = C.disclaimer;
+  document.getElementById('info-card-ngo-label').textContent = C.ngoLabel;
+  document.getElementById('m-card-ngo-label').textContent = C.ngoLabel;
+}
+
+// ═══════════════════════════════════════════
+// MAP HELPERS
+// ═══════════════════════════════════════════
 function resolveCountry(name) {
   const n = name.toLowerCase().trim();
   for (const [c, aliases] of Object.entries(ALIASES)) {
-    if (c.toLowerCase() === n) return c;
-    if (aliases.some(a => a.toLowerCase() === n)) return c;
-  }
-  for (const p of Object.values(PHASES)) {
-    const m = Object.keys(p.countries).find(c => c.toLowerCase() === n);
-    if (m) return m;
+    if (c.toLowerCase()===n || aliases.some(a=>a.toLowerCase()===n)) return c;
   }
   return name;
 }
 
-function getPhaseNumForCountry(name) {
+function getPhaseForCountry(name) {
   const r = resolveCountry(name);
-  for (const [num, p] of Object.entries(PHASES)) {
-    if (r in p.countries) return parseInt(num);
-  }
-  return null;
+  return NGO_DATA[r]?.phase || null;
 }
+
+const PHASE_COLORS = { 1:'#22c55e', 2:'#eab308', 3:'#3b82f6' };
+const PHASE_HOVER  = { 1:'#4ade80', 2:'#facc15', 3:'#60a5fa' };
+const PHASE_GLOW   = { 1:'rgba(34,197,94,0.22)', 2:'rgba(234,179,8,0.22)', 3:'rgba(59,130,246,0.22)' };
 
 function getFill(name) {
-  const ph = getPhaseNumForCountry(name);
-  if (activePhase === null) return ph !== null ? "#1f1f1f" : "#161616";
-  if (ph === activePhase) return PHASES[activePhase].color;
-  return "#141414";
+  const ph = getPhaseForCountry(name);
+  if (activePhase===null) return ph!==null ? '#1f1f1f' : '#161616';
+  return ph===activePhase ? PHASE_COLORS[activePhase] : '#141414';
 }
-
 function getHoverFill(name) {
-  const ph = getPhaseNumForCountry(name);
-  if (activePhase === null) return ph !== null ? "#2c2c2c" : "#1e1e1e";
-  if (ph === activePhase) return PHASES[activePhase].hover;
-  return "#1a1a1a";
+  const ph = getPhaseForCountry(name);
+  if (activePhase===null) return ph!==null ? '#2c2c2c' : '#1e1e1e';
+  return ph===activePhase ? PHASE_HOVER[activePhase] : '#1a1a1a';
 }
 
 function animateAll() {
   if (!svgG) return;
-  svgG.selectAll("path.country")
+  svgG.selectAll('path.country')
     .transition().duration(520).ease(d3.easeCubicOut)
-    .attr("fill", function() { return getFill(d3.select(this).attr("data-name")); });
+    .attr('fill', function(){ return getFill(d3.select(this).attr('data-name')); });
 }
 
+// ═══════════════════════════════════════════
+// ANNOTATIONS
+// ═══════════════════════════════════════════
 function drawAnnotations() {
   if (!annotationsG || !projFn) return;
-  annotationsG.selectAll("*").remove();
-  if (activePhase === null) return;
+  annotationsG.selectAll('*').remove();
+  if (activePhase===null) return;
 
-  const p = PHASES[activePhase];
+  const col = PHASE_COLORS[activePhase];
 
-  Object.entries(p.countries).forEach(([country, cfg]) => {
+  Object.entries(NGO_DATA).forEach(([country, data]) => {
+    if (data.phase !== activePhase) return;
     const centroid = CENTROIDS[country];
-    if (!centroid) return;
+    const off = LABEL_OFF[country];
+    if (!centroid || !off) return;
+
     const [px, py] = projFn(centroid);
-    const tx = px + cfg.dx;
-    const ty = py + cfg.dy;
+    const [dx, dy, anchor] = off;
+    const tx = px + dx, ty = py + dy;
 
-    // First NGO name for the annotation label
-    const firstNgo = cfg.ngos[0]?.name || "";
-    const extraCount = cfg.ngos.length - 1;
+    // Pick first non-Labdoo NGO for annotation label; fall back to first if all are Labdoo
+    const nonLabdooFirst = data.ngos.find(n => !n.name.toLowerCase().startsWith("labdoo"));
+    const featured = nonLabdooFirst || data.ngos[0];
+    const firstName = lang==="cn" ? featured.name_cn : featured.name;
+    const extra = data.ngos.length - 1;
 
-    annotationsG.append("line")
-      .attr("x1", px).attr("y1", py).attr("x2", tx).attr("y2", ty)
-      .attr("stroke", p.color).attr("stroke-width", 0.5)
-      .attr("stroke-opacity", 0).attr("stroke-dasharray", "2,2")
-      .transition().delay(60).duration(400).attr("stroke-opacity", 0.32);
+    annotationsG.append('line')
+      .attr('x1',px).attr('y1',py).attr('x2',tx).attr('y2',ty)
+      .attr('stroke',col).attr('stroke-width',0.5).attr('stroke-opacity',0)
+      .attr('stroke-dasharray','2,2')
+      .transition().delay(60).duration(400).attr('stroke-opacity',0.32);
 
-    annotationsG.append("circle")
-      .attr("cx", px).attr("cy", py).attr("r", 2)
-      .attr("fill", p.color).attr("opacity", 0)
-      .transition().delay(60).duration(400).attr("opacity", 0.65);
+    annotationsG.append('circle')
+      .attr('cx',px).attr('cy',py).attr('r',2)
+      .attr('fill',col).attr('opacity',0)
+      .transition().delay(60).duration(400).attr('opacity',0.65);
 
-    const labelG = annotationsG.append("g")
-      .attr("opacity", 0);
+    const labelG = annotationsG.append('g').attr('opacity',0);
 
-    labelG.append("text")
-      .attr("x", tx + (cfg.anchor === "start" ? 3 : -3))
-      .attr("y", ty)
-      .attr("text-anchor", cfg.anchor)
-      .attr("dominant-baseline", "middle")
-      .attr("fill", "rgba(255,255,255,0.7)")
-      .attr("class", "ngo-annotation")
-      .style("font-size", "5.5px")
-      .style("pointer-events", "none")
-      .text(firstNgo);
+    labelG.append('text')
+      .attr('x', tx+(anchor==='start'?3:-3))
+      .attr('y', ty)
+      .attr('text-anchor',anchor)
+      .attr('dominant-baseline','middle')
+      .attr('fill','rgba(255,255,255,0.72)')
+      .attr('class','ngo-annotation')
+      .style('font-size','5.5px')
+      .style('pointer-events','none')
+      .text(firstName);
 
-    if (extraCount > 0) {
-      labelG.append("text")
-        .attr("x", tx + (cfg.anchor === "start" ? 3 : -3))
-        .attr("y", ty + 7)
-        .attr("text-anchor", cfg.anchor)
-        .attr("dominant-baseline", "middle")
-        .attr("fill", "rgba(255,255,255,0.35)")
-        .style("font-size", "4.5px")
-        .style("font-family", "Inter, sans-serif")
-        .style("pointer-events", "none")
-        .text(`+${extraCount} more`);
+    if (extra>0) {
+      const moreText = lang==='cn' ? `+${extra} 更多` : `+${extra} more`;
+      labelG.append('text')
+        .attr('x', tx+(anchor==='start'?3:-3))
+        .attr('y', ty+7)
+        .attr('text-anchor',anchor)
+        .attr('dominant-baseline','middle')
+        .attr('fill','rgba(255,255,255,0.35)')
+        .style('font-size','4.5px')
+        .style('font-family','Inter,sans-serif')
+        .style('pointer-events','none')
+        .text(moreText);
     }
-
-    labelG.transition().delay(100).duration(450).attr("opacity", 1);
+    labelG.transition().delay(100).duration(450).attr('opacity',1);
   });
 }
 
+// ═══════════════════════════════════════════
+// INFO CARDS
+// ═══════════════════════════════════════════
 function buildNgoHtml(ngos, color) {
-  return ngos.map(ngo => {
-    const domain = ngo.website.replace(/^https?:\/\//, "").replace(/\/$/, "");
+  // Sort: non-Labdoo first alphabetically, then Labdoo entries at end
+  const nonLabdoo = [...ngos].filter(n => !n.name.toLowerCase().startsWith("labdoo"))
+    .sort((a,b) => {
+      const na = lang==="cn" ? a.name_cn : a.name;
+      const nb = lang==="cn" ? b.name_cn : b.name;
+      return na.localeCompare(nb);
+    });
+  const labdoos = [...ngos].filter(n => n.name.toLowerCase().startsWith("labdoo"))
+    .sort((a,b) => {
+      const na = lang==="cn" ? a.name_cn : a.name;
+      const nb = lang==="cn" ? b.name_cn : b.name;
+      return na.localeCompare(nb);
+    });
+  const sorted = [...nonLabdoo, ...labdoos];
+  return sorted.map(ngo => {
+    const name = lang==='cn' ? ngo.name_cn : ngo.name;
+    const url = ngo.url && !ngo.url.includes('inactive') ? ngo.url : null;
+    const domain = url ? url.replace(/^https?:\/\//,'').replace(/\/$/,'') : null;
     return `<div class="ngo-row">
       <div class="ngo-row-top">
-        <span class="ngo-bullet" style="background:${color}"></span>
-        <span class="ngo-name">${ngo.name}</span>
+        <span class="ngo-bullet" style="background:${color};margin-top:5px"></span>
+        <span class="ngo-name">${name}</span>
       </div>
-      <div class="ngo-focus">${ngo.focus}</div>
-      <div class="ngo-link"><a href="${ngo.website}" target="_blank" rel="noopener">${domain} ↗</a></div>
+      ${domain ? `<div class="ngo-link"><a href="${url.startsWith('http')?url:'https://'+url}" target="_blank" rel="noopener">${domain} ↗</a></div>` : ''}
     </div>`;
-  }).join("");
+  }).join('');
 }
 
-function isMobile() { return window.innerWidth <= 767; }
+function isMobile() { return window.innerWidth<=767; }
 
 function showCard(countryName) {
-  const phaseNum = getPhaseNumForCountry(countryName);
-  if (phaseNum === null) return;
-  const p = PHASES[phaseNum];
-  const cfg = p.countries[countryName];
-  if (!cfg) return;
-
+  const data = NGO_DATA[countryName];
+  if (!data) return;
   selectedCountry = countryName;
-  const ngoHtml = buildNgoHtml(cfg.ngos, p.color);
+  const ph = data.phase;
+  const col = PHASE_COLORS[ph];
+  const C = COPY[lang];
+  const phLabel = [C.p1num,C.p2num,C.p3num][ph-1];
+  const ngoHtml = buildNgoHtml(data.ngos, col);
 
   if (isMobile()) {
-    // Populate and show mobile card below map
-    document.getElementById("m-card-phase").textContent = p.label;
-    document.getElementById("m-card-phase").style.color = p.color;
-    document.getElementById("m-card-country").textContent = countryName;
-    document.getElementById("m-card-approach").textContent = p.approach;
-    document.getElementById("m-card-ngos").innerHTML = ngoHtml;
-    const mc = document.getElementById("mobile-info-card");
-    mc.classList.add("visible");
-    // Smooth scroll the card into view
-    setTimeout(() => mc.scrollIntoView({ behavior: "smooth", block: "nearest" }), 50);
+    document.getElementById('m-card-phase').textContent = phLabel;
+    document.getElementById('m-card-phase').style.color = col;
+    document.getElementById('m-card-country').textContent = countryName;
+    document.getElementById('m-card-approach').textContent = C.approach[ph];
+    document.getElementById('m-card-ngos').innerHTML = ngoHtml;
+    const mc = document.getElementById('mobile-info-card');
+    mc.classList.add('visible');
+    setTimeout(()=>mc.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
   } else {
-    // Populate and show desktop overlay card
-    const phaseEl = document.getElementById("info-card-phase");
-    phaseEl.textContent = p.label;
-    phaseEl.style.color = p.color;
-    document.getElementById("info-card-country").textContent = countryName;
-    document.getElementById("info-card-approach").textContent = p.approach;
-    document.getElementById("info-card-ngos").innerHTML = ngoHtml;
-    document.getElementById("info-card").classList.add("visible");
+    document.getElementById('info-card-phase').textContent = phLabel;
+    document.getElementById('info-card-phase').style.color = col;
+    document.getElementById('info-card-country').textContent = countryName;
+    document.getElementById('info-card-approach').textContent = C.approach[ph];
+    document.getElementById('info-card-ngos').innerHTML = ngoHtml;
+    document.getElementById('info-card').classList.add('visible');
   }
 }
 
+// Alias so toggle-lang can call either
+function showMobileCard(name) { showCard(name); }
+
 function closeCard() {
-  document.getElementById("info-card").classList.remove("visible");
+  document.getElementById('info-card').classList.remove('visible');
   selectedCountry = null;
 }
-
 function closeMobileCard() {
-  document.getElementById("mobile-info-card").classList.remove("visible");
+  document.getElementById('mobile-info-card').classList.remove('visible');
   selectedCountry = null;
   resetZoom();
 }
 
+// ═══════════════════════════════════════════
+// PHASE TOGGLE
+// ═══════════════════════════════════════════
 function togglePhase(num) {
-  if (activePhase === num) { resetAll(); return; }
+  if (activePhase===num) { resetAll(); return; }
   activePhase = num;
-  const p = PHASES[num];
+  const col = PHASE_COLORS[num];
+  const glow = PHASE_GLOW[num];
+  const C = COPY[lang];
 
-  document.getElementById("subtitle").textContent = p.subtitle;
-  document.getElementById("objective-text").textContent = p.objective;
-  document.getElementById("objective-text").style.color = "#888";
-  document.getElementById("objective-accent").style.background = p.color;
-  document.getElementById("objective").style.borderColor = p.color + "30";
+  document.getElementById('subtitle').textContent = C.subtitle_phase[num];
+  document.getElementById('objective-text').textContent = C.objective[num];
+  document.getElementById('objective-text').style.color = '#888';
+  document.getElementById('objective-accent').style.background = col;
+  document.getElementById('objective').style.borderColor = col+'30';
 
-  [1,2,3].forEach(n => {
-    const b = document.getElementById("btn"+n);
-    if (n === num) {
-      b.classList.add("active"); b.style.background = PHASES[n].color;
-      b.style.boxShadow = `0 4px 24px ${PHASES[n].glow}`;
-    } else {
-      b.classList.remove("active"); b.style.background = "";
-      b.style.boxShadow = "";
-    }
+  [1,2,3].forEach(n=>{
+    const b=document.getElementById('btn'+n);
+    if(n===num){b.classList.add('active');b.style.background=PHASE_COLORS[n];b.style.boxShadow=`0 4px 24px ${PHASE_GLOW[n]}`;}
+    else{b.classList.remove('active');b.style.background='';b.style.boxShadow='';}
   });
 
   animateAll();
   drawAnnotations();
   closeCard();
-  document.getElementById("mobile-info-card").classList.remove("visible");
-  selectedCountry = null;
+  document.getElementById('mobile-info-card').classList.remove('visible');
+  selectedCountry=null;
   resetZoom();
 }
 
 function resetAll() {
-  activePhase = null;
-  document.getElementById("subtitle").textContent = "Identifying NGO partners to expand Green IT Classroom coverage across developing and developed markets worldwide.";
-  document.getElementById("objective-text").textContent = "Select a phase above to explore the strategic objective and highlight target countries on the map.";
-  document.getElementById("objective-text").style.color = "";
-  document.getElementById("objective-accent").style.background = "";
-  document.getElementById("objective").style.borderColor = "";
-  [1,2,3].forEach(n => {
-    document.getElementById("btn"+n).classList.remove("active");
-    document.getElementById("btn"+n).style.background = "";
-    document.getElementById("btn"+n).style.boxShadow = "";
+  activePhase=null;
+  const C=COPY[lang];
+  document.getElementById('subtitle').textContent = C.subtitle;
+  document.getElementById('objective-text').textContent = C.objective[0];
+  document.getElementById('objective-text').style.color='';
+  document.getElementById('objective-accent').style.background='';
+  document.getElementById('objective').style.borderColor='';
+  [1,2,3].forEach(n=>{
+    document.getElementById('btn'+n).classList.remove('active');
+    document.getElementById('btn'+n).style.background='';
+    document.getElementById('btn'+n).style.boxShadow='';
   });
   animateAll();
-  if (annotationsG) annotationsG.selectAll("*").remove();
+  if(annotationsG) annotationsG.selectAll('*').remove();
   closeCard();
-  document.getElementById("mobile-info-card").classList.remove("visible");
+  document.getElementById('mobile-info-card').classList.remove('visible');
+  selectedCountry=null;
   resetZoom();
 }
 
 function resetZoom() {
-  if (!svgEl || !zoomBehavior) return;
-  svgEl.transition().duration(500).ease(d3.easeCubicOut)
-    .call(zoomBehavior.transform, d3.zoomIdentity);
+  if(!svgEl||!zoomBehavior)return;
+  svgEl.transition().duration(500).ease(d3.easeCubicOut).call(zoomBehavior.transform,d3.zoomIdentity);
 }
 
 function zoomToCountry(name) {
-  if (!svgG || !svgEl) return;
-  const el = svgG.selectAll("path.country").filter(function() {
-    return resolveCountry(d3.select(this).attr("data-name")) === name;
-  }).node();
-  if (!el) return;
-  const b = el.getBBox();
-  const W = +svgEl.attr("width"), H = +svgEl.attr("height");
-  const scale = Math.min(10, 0.72 / Math.max(b.width / W, b.height / H));
-  const tx = W / 2 - scale * (b.x + b.width / 2);
-  const ty = H / 2 - scale * (b.y + b.height / 2);
-  svgEl.transition().duration(700).ease(d3.easeCubicInOut)
-    .call(zoomBehavior.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
+  if(!svgG||!svgEl)return;
+  const el=svgG.selectAll('path.country').filter(function(){return resolveCountry(d3.select(this).attr('data-name'))===name;}).node();
+  if(!el)return;
+  const b=el.getBBox();
+  const W=+svgEl.attr('width'),H=+svgEl.attr('height');
+  const scale=Math.min(10,0.72/Math.max(b.width/W,b.height/H));
+  const tx=W/2-scale*(b.x+b.width/2);
+  const ty=H/2-scale*(b.y+b.height/2);
+  svgEl.transition().duration(700).ease(d3.easeCubicInOut).call(zoomBehavior.transform,d3.zoomIdentity.translate(tx,ty).scale(scale));
 }
 
+// ═══════════════════════════════════════════
+// MAP INIT
+// ═══════════════════════════════════════════
 async function initMap() {
-  const wrap = document.getElementById("map-svg-wrap");
-  const W = wrap.offsetWidth || 1100;
-  const H = Math.round(W * 0.52);
+  const wrap=document.getElementById('map-svg-wrap');
+  const W=wrap.offsetWidth||1100;
+  const H=Math.round(W*0.52);
 
-  const world = await d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json");
-  const countries = topojson.feature(world, world.objects.countries);
-  const borders = topojson.mesh(world, world.objects.countries, (a, b) => a !== b);
+  const world=await d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json');
+  const countries=topojson.feature(world,world.objects.countries);
+  const borders=topojson.mesh(world,world.objects.countries,(a,b)=>a!==b);
 
-  const projection = d3.geoNaturalEarth1()
-    .scale(W / 6.0)
-    .translate([W / 2, H / 2 + H * 0.03]);
-  projFn = projection;
-  const path = d3.geoPath().projection(projection);
+  const projection=d3.geoNaturalEarth1().scale(W/6.0).translate([W/2,H/2+H*0.03]);
+  projFn=projection;
+  const path=d3.geoPath().projection(projection);
 
-  svgEl = d3.select("#map-svg-wrap").append("svg")
-    .attr("width", W).attr("height", H)
-    .attr("viewBox", `0 0 ${W} ${H}`)
-    .style("display", "block");
+  svgEl=d3.select('#map-svg-wrap').append('svg')
+    .attr('width',W).attr('height',H)
+    .attr('viewBox',`0 0 ${W} ${H}`)
+    .style('display','block');
 
-  zoomBehavior = d3.zoom().scaleExtent([1, 14])
-    .on("zoom", e => {
-      svgG.attr("transform", e.transform);
-      annotationsG.attr("transform", e.transform);
-    });
+  zoomBehavior=d3.zoom().scaleExtent([1,14])
+    .on('zoom',e=>{svgG.attr('transform',e.transform);annotationsG.attr('transform',e.transform);});
   svgEl.call(zoomBehavior);
 
-  svgG = svgEl.append("g");
+  svgG=svgEl.append('g');
 
-  svgG.selectAll("path.country")
+  svgG.selectAll('path.country')
     .data(countries.features)
-    .enter().append("path")
-    .attr("class", "country")
-    .attr("data-name", d => d.properties.name || "Unknown")
-    .attr("d", path)
-    .attr("fill", d => getFill(d.properties.name || "Unknown"))
-    .attr("stroke", "#2e2e2e")
-    .attr("stroke-width", 0.6)
-    .style("cursor", "default")
-    .on("mouseenter", function(e, d) {
-      const name = d.properties.name || "Unknown";
-      const chip = document.getElementById("hover-chip-name");
-      chip.textContent = name;
-      const ph = getPhaseNumForCountry(name);
-      chip.style.color = (activePhase !== null && ph === activePhase) ? PHASES[activePhase].color : "";
-      if (name !== selectedCountry) d3.select(this).interrupt().attr("fill", getHoverFill(name));
+    .enter().append('path')
+    .attr('class','country')
+    .attr('data-name',d=>d.properties.name||'Unknown')
+    .attr('d',path)
+    .attr('fill',d=>getFill(d.properties.name||'Unknown'))
+    .attr('stroke','#2e2e2e')
+    .attr('stroke-width',0.6)
+    .style('cursor','default')
+    .on('mouseenter',function(e,d){
+      const name=d.properties.name||'Unknown';
+      document.getElementById('hover-chip-name').textContent=name;
+      const ph=getPhaseForCountry(name);
+      document.getElementById('hover-chip-name').style.color=(activePhase!==null&&ph===activePhase)?PHASE_COLORS[activePhase]:'';
+      if(name!==selectedCountry) d3.select(this).interrupt().attr('fill',getHoverFill(name));
     })
-    .on("mouseleave", function(e, d) {
-      const name = d.properties.name || "Unknown";
-      document.getElementById("hover-chip-name").textContent = "—";
-      document.getElementById("hover-chip-name").style.color = "";
-      d3.select(this).interrupt().transition().duration(280).attr("fill", getFill(name));
+    .on('mouseleave',function(e,d){
+      const name=d.properties.name||'Unknown';
+      document.getElementById('hover-chip-name').textContent='—';
+      document.getElementById('hover-chip-name').style.color='';
+      d3.select(this).interrupt().transition().duration(280).attr('fill',getFill(name));
     })
-    .on("click", function(e, d) {
+    .on('click',function(e,d){
       e.stopPropagation();
-      const name = resolveCountry(d.properties.name || "Unknown");
-      const ph = getPhaseNumForCountry(name);
-      if (activePhase !== null && ph === activePhase) {
-        if (selectedCountry === name) {
-          resetZoom();
-          closeCard();
-        } else {
-          zoomToCountry(name);
-          showCard(name);
-        }
+      const name=resolveCountry(d.properties.name||'Unknown');
+      const ph=getPhaseForCountry(name);
+      if(activePhase!==null&&ph===activePhase){
+        if(selectedCountry===name){resetZoom();closeCard();document.getElementById('mobile-info-card').classList.remove('visible');selectedCountry=null;}
+        else{zoomToCountry(name);showCard(name);}
       }
     });
 
-  svgG.append("path")
-    .datum(borders)
-    .attr("d", path)
-    .attr("fill", "none")
-    .attr("stroke", "#282828")
-    .attr("stroke-width", 0.4);
+  svgG.append('path').datum(borders).attr('d',path)
+    .attr('fill','none').attr('stroke','#282828').attr('stroke-width',0.4);
 
-  annotationsG = svgEl.append("g");
+  // ── Enlarged hit targets for small/hard-to-click countries ──
+  const SMALL_TARGETS = {"South Korea": [127.5, 36.5], "Timor-Leste": [125.8, -8.8], "Philippines": [122, 12.5], "Cambodia": [104.9, 12.6], "Laos": [102.6, 17.9], "Bulgaria": [25.3, 42.7], "Netherlands": [5.3, 52.1], "Cuba": [-79.5, 21.8], "Ecuador": [-78.2, -1.3], "Uganda": [32.3, 1.4], "Mongolia": [103.8, 46.8], "Norway": [15, 65]};
 
-  svgEl.on("click", e => {
-    if (e.target.tagName === "svg" || e.target === svgEl.node()) {
-      resetZoom();
-      closeCard();
-    }
+  Object.entries(SMALL_TARGETS).forEach(([country, lonlat]) => {
+    const [px, py] = projection(lonlat);
+    svgG.append('circle')
+      .attr('class','hit-target')
+      .attr('cx', px).attr('cy', py)
+      .attr('r', 12)
+      .attr('fill', 'transparent')
+      .attr('stroke', 'none')
+      .style('cursor', 'default')
+      .on('mouseenter', function() {
+        document.getElementById('hover-chip-name').textContent = country;
+        const ph = getPhaseForCountry(country);
+        document.getElementById('hover-chip-name').style.color =
+          (activePhase !== null && ph === activePhase) ? PHASE_COLORS[activePhase] : '';
+      })
+      .on('mouseleave', function() {
+        document.getElementById('hover-chip-name').textContent = '—';
+        document.getElementById('hover-chip-name').style.color = '';
+      })
+      .on('click', function(e) {
+        e.stopPropagation();
+        const ph = getPhaseForCountry(country);
+        if (activePhase !== null && ph === activePhase) {
+          if (selectedCountry === country) {
+            resetZoom(); closeCard();
+            document.getElementById('mobile-info-card').classList.remove('visible');
+            selectedCountry = null;
+          } else {
+            zoomToCountry(country); showCard(country);
+          }
+        }
+      });
+  });
+
+  annotationsG=svgEl.append('g');
+
+  svgEl.on('click',e=>{
+    if(e.target.tagName==='svg'||e.target===svgEl.node()){resetZoom();closeCard();}
   });
 }
 
+// ═══════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════
+renderUI();
 initMap();
 </script>
 </body>
