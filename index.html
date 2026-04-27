@@ -49,6 +49,10 @@ body{display:flex;flex-direction:column;align-items:center;padding:48px 32px 72p
 /* ── Map frame ── */
 #map-frame{width:100%;max-width:1100px;background:var(--surface);border:1px solid var(--border);border-radius:20px;overflow:hidden;position:relative;box-shadow:0 0 0 1px rgba(255,255,255,0.03),0 40px 100px rgba(0,0,0,0.7),inset 0 1px 0 rgba(255,255,255,0.04);touch-action:none}
 #hover-chip{position:absolute;top:16px;right:16px;z-index:20;background:rgba(0,0,0,0.82);backdrop-filter:blur(16px);border:1px solid var(--border2);border-radius:10px;padding:8px 14px;min-width:155px;pointer-events:none}
+#ngo-chip{position:absolute;top:16px;left:16px;z-index:20;background:rgba(0,0,0,0.82);backdrop-filter:blur(16px);border:1px solid var(--border2);border-radius:10px;padding:8px 14px;pointer-events:auto;cursor:pointer;transition:border-color 0.2s}
+#ngo-chip-label{font-size:9px;text-transform:uppercase;letter-spacing:0.16em;color:var(--text-muted);margin-bottom:3px}
+#ngo-chip-count{font-size:22px;font-weight:600;color:var(--text-primary);line-height:1;margin-bottom:2px}
+#ngo-chip-text{font-size:10px;color:var(--text-secondary);white-space:nowrap}
 #hover-chip-label{font-size:9px;text-transform:uppercase;letter-spacing:0.16em;color:var(--text-muted);margin-bottom:3px}
 #hover-chip-name{font-size:12px;font-weight:500;color:var(--text-secondary);text-align:right;transition:color 0.2s}
 #map-svg-wrap{width:100%;display:block;line-height:0}
@@ -107,13 +111,17 @@ body{display:flex;flex-direction:column;align-items:center;padding:48px 32px 72p
   #main-title{font-size:22px;margin-bottom:8px}
   #subtitle{font-size:13px;min-height:unset}
   #controls{flex-direction:column;align-items:stretch;gap:8px;margin-bottom:16px}
-  .phase-btn{padding:13px 20px;white-space:normal;justify-content:flex-start}
+  .phase-btn{padding:12px 18px;white-space:normal;justify-content:flex-start;align-items:center;flex-wrap:nowrap}
+  .phase-btn .btn-num{white-space:nowrap;flex-shrink:0}
+  .phase-btn .btn-sep{white-space:nowrap;flex-shrink:0}
+  .phase-btn .btn-desc{white-space:normal;flex:1;text-align:left}
   #btn-clear{align-self:center}
   #map-frame{border-radius:14px}
   #map-svg-wrap svg{height:260px!important}
   #hover-chip{display:none}
+  #ngo-chip{display:none}
   #info-card{display:none!important}
-  #mobile-info-card{display:block}
+  #mobile-info-card{display:none}
   #mobile-info-card.visible{display:block}
   #objective{padding:12px 14px}
   #objective-text{font-size:12px}
@@ -124,6 +132,84 @@ body{display:flex;flex-direction:column;align-items:center;padding:48px 32px 72p
   #main-title{font-size:26px}
   .phase-btn{padding:10px 20px;font-size:12px}
   .phase-btn .btn-desc{font-size:11px}
+}
+
+/* ── NGO List Modal ── */
+#ngo-modal-overlay{
+  position:fixed;inset:0;z-index:200;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,0.55);backdrop-filter:blur(10px);
+  opacity:0;pointer-events:none;transition:opacity 0.28s ease;
+}
+#ngo-modal-overlay.open{opacity:1;pointer-events:auto}
+
+#ngo-modal{
+  width:min(1080px,94vw);max-height:82vh;
+  background:rgba(8,8,8,0.95);backdrop-filter:blur(24px);
+  border:1px solid var(--border2);border-radius:20px;
+  display:flex;flex-direction:column;overflow:hidden;
+  transform:translateY(12px);transition:transform 0.28s ease;
+  box-shadow:0 32px 80px rgba(0,0,0,0.7),0 0 0 1px rgba(255,255,255,0.04);
+}
+#ngo-modal-overlay.open #ngo-modal{transform:translateY(0)}
+
+#ngo-modal-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 24px 16px;border-bottom:1px solid var(--border);flex-shrink:0;
+}
+#ngo-modal-title{font-family:'Inter Tight',sans-serif;font-size:18px;font-weight:700;color:#fff;letter-spacing:-0.01em}
+#ngo-modal-meta{font-size:12px;color:var(--text-muted);margin-top:2px}
+#ngo-modal-close{
+  width:32px;height:32px;border-radius:50%;background:var(--surface2);
+  border:1px solid var(--border2);color:var(--text-secondary);
+  font-size:18px;line-height:1;cursor:pointer;display:flex;
+  align-items:center;justify-content:center;transition:all 0.15s;flex-shrink:0;
+}
+#ngo-modal-close:hover{background:var(--surface);color:#fff}
+
+#ngo-modal-body{overflow-y:auto;padding:20px 24px 24px;flex:1;
+  scrollbar-width:thin;scrollbar-color:#333 transparent}
+#ngo-modal-body::-webkit-scrollbar{width:4px}
+#ngo-modal-body::-webkit-scrollbar-thumb{background:#333;border-radius:2px}
+
+/* Country cards grid */
+#ngo-modal-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:12px;
+}
+.modal-country-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:14px 16px;
+}
+.modal-country-name{
+  font-size:13px;font-weight:600;color:var(--text-primary);
+  margin-bottom:8px;letter-spacing:-0.01em;
+  padding-bottom:7px;border-bottom:1px solid var(--border);
+}
+.modal-ngo-item{
+  display:flex;align-items:flex-start;gap:6px;
+  padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.03);
+}
+.modal-ngo-item:last-child{border-bottom:none;padding-bottom:0}
+.modal-ngo-dot{width:4px;height:4px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.modal-ngo-name{font-size:11.5px;color:rgba(255,255,255,0.75);line-height:1.4;flex:1}
+.modal-ngo-link{font-size:10px;color:rgba(255,255,255,0.28);text-decoration:none;
+  flex-shrink:0;margin-top:1px;transition:color 0.15s;align-self:flex-start}
+.modal-ngo-link:hover{color:rgba(255,255,255,0.65)}
+
+/* Make chip clickable */
+#ngo-chip{cursor:pointer}
+#ngo-chip:hover{border-color:rgba(255,255,255,0.25)}
+
+@media(max-width:767px){
+  #ngo-modal{width:94vw;max-height:88vh;border-radius:14px}
+  #ngo-modal-grid{grid-template-columns:1fr 1fr}
+  #ngo-modal-header{padding:16px 16px 12px}
+  #ngo-modal-body{padding:14px 16px 18px}
+  .modal-country-card{padding:10px 12px}
+}
+@media(max-width:420px){
+  #ngo-modal-grid{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -173,6 +259,11 @@ body{display:flex;flex-direction:column;align-items:center;padding:48px 32px 72p
     <div id="hover-chip-label"></div>
     <div id="hover-chip-name">—</div>
   </div>
+  <div id="ngo-chip" onclick="openNgoModal()" title="View all NGOs">
+    <div id="ngo-chip-label"></div>
+    <div id="ngo-chip-count"></div>
+    <div id="ngo-chip-text"></div>
+  </div>
   <div id="info-card">
     <button id="info-card-close" onclick="closeCard()">×</button>
     <div id="info-card-phase"></div>
@@ -205,6 +296,22 @@ body{display:flex;flex-direction:column;align-items:center;padding:48px 32px 72p
 <!-- Disclaimer -->
 <p id="disclaimer"></p>
 
+<!-- NGO List Modal -->
+<div id="ngo-modal-overlay" onclick="handleModalOverlayClick(event)">
+  <div id="ngo-modal">
+    <div id="ngo-modal-header">
+      <div>
+        <div id="ngo-modal-title"></div>
+        <div id="ngo-modal-meta"></div>
+      </div>
+      <button id="ngo-modal-close" onclick="closeNgoModal()">×</button>
+    </div>
+    <div id="ngo-modal-body">
+      <div id="ngo-modal-grid"></div>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script>
@@ -221,6 +328,7 @@ const COPY = {
     p3num: "Phase 3", p3desc: "Developed countries",
     clear: "Clear",
     hover: "Country",
+    ngoChipLabel: "NGOs Identified",
     ngoLabel: "NGO Partners",
     approach: { 1:"Guided journey — Zhonggu leads execution", 2:"Collaborative journey — Zhonggu enables execution", 3:"Strategic journey — Zhonggu enables & amplifies" },
     objective: {
@@ -237,7 +345,7 @@ const COPY = {
     disclaimer: "These countries and NGOs represent suggested opportunities for expansion and partnership development. Final prioritization may evolve based on the defined scaling strategy and available resources."
   },
   cn: {
-    eyebrow: "I Share · 绿色IT教室计划",
+    eyebrow: "爱传递·再生电脑教室",
     title: "众谷全球扩展战略",
     subtitle: "寻找非政府组织合作伙伴，以扩大绿色IT教室在全球发展中国家和发达市场的覆盖范围。",
     p1num: "第一阶段", p1desc: "立法友好的发展中国家",
@@ -245,6 +353,7 @@ const COPY = {
     p3num: "第三阶段", p3desc: "发达国家",
     clear: "清除",
     hover: "国家",
+    ngoChipLabel: "已识别机构",
     ngoLabel: "非政府组织合作伙伴",
     approach: { 1:"引导式——众谷主导执行", 2:"协作式——众谷赋能执行", 3:"战略式——众谷赋能提升" },
     objective: {
@@ -347,6 +456,8 @@ let selectedCountry = null;
 // ═══════════════════════════════════════════
 function setLang(l) {
   lang = l;
+  const modalOpen = document.getElementById('ngo-modal-overlay').classList.contains('open');
+  if (modalOpen) { closeNgoModal(); }
   document.getElementById('lang-en').classList.toggle('active', l==='en');
   document.getElementById('lang-cn').classList.toggle('active', l==='cn');
   document.documentElement.lang = l==='cn' ? 'zh-CN' : 'en';
@@ -375,6 +486,8 @@ function renderUI() {
   document.getElementById('btn3-desc').textContent = C.p3desc;
   document.getElementById('btn-clear').textContent = C.clear;
   document.getElementById('hover-chip-label').textContent = C.hover;
+  // NGO chip
+  updateNgoChip();
   document.getElementById('objective-text').textContent = activePhase ? C.objective[activePhase] : C.objective[0];
   document.getElementById('disclaimer').textContent = C.disclaimer;
   document.getElementById('info-card-ngo-label').textContent = C.ngoLabel;
@@ -384,6 +497,22 @@ function renderUI() {
 // ═══════════════════════════════════════════
 // MAP HELPERS
 // ═══════════════════════════════════════════
+function updateNgoChip() {
+  const C = COPY[lang];
+  const ngoLabel = document.getElementById('ngo-chip-label');
+  const ngoCount = document.getElementById('ngo-chip-count');
+  const ngoText = document.getElementById('ngo-chip-text');
+  ngoLabel.textContent = C.ngoChipLabel;
+  if (activePhase !== null) {
+    ngoCount.textContent = NGO_COUNTS[activePhase];
+    ngoCount.style.color = PHASE_COLORS[activePhase];
+  } else {
+    ngoCount.textContent = '—';
+    ngoCount.style.color = 'var(--text-muted)';
+  }
+  ngoText.textContent = '';
+}
+
 function resolveCountry(name) {
   const n = name.toLowerCase().trim();
   for (const [c, aliases] of Object.entries(ALIASES)) {
@@ -397,6 +526,7 @@ function getPhaseForCountry(name) {
   return NGO_DATA[r]?.phase || null;
 }
 
+const NGO_COUNTS = { 1: 9, 2: 19, 3: 10 };
 const PHASE_COLORS = { 1:'#22c55e', 2:'#eab308', 3:'#3b82f6' };
 const PHASE_HOVER  = { 1:'#4ade80', 2:'#facc15', 3:'#60a5fa' };
 const PHASE_GLOW   = { 1:'rgba(34,197,94,0.22)', 2:'rgba(234,179,8,0.22)', 3:'rgba(59,130,246,0.22)' };
@@ -590,6 +720,7 @@ function togglePhase(num) {
   document.getElementById('mobile-info-card').classList.remove('visible');
   selectedCountry=null;
   resetZoom();
+  updateNgoChip();
 }
 
 function resetAll() {
@@ -611,6 +742,7 @@ function resetAll() {
   document.getElementById('mobile-info-card').classList.remove('visible');
   selectedCountry=null;
   resetZoom();
+  updateNgoChip();
 }
 
 function resetZoom() {
@@ -737,10 +869,74 @@ async function initMap() {
   });
 }
 
+
+// ═══════════════════════════════════════════
+// NGO LIST MODAL
+// ═══════════════════════════════════════════
+function openNgoModal() {
+  if (activePhase === null) return;
+  const C = COPY[lang];
+  const ph = activePhase;
+  const col = PHASE_COLORS[ph];
+  const phLabel = [C.p1num, C.p2num, C.p3num][ph - 1];
+
+  // Title + meta
+  document.getElementById('ngo-modal-title').textContent = C.ngoChipLabel + ' · ' + phLabel;
+  document.getElementById('ngo-modal-meta').textContent =
+    NGO_COUNTS[ph] + (lang === 'cn' ? ' 个机构 · 按国家字母顺序排列' : ' NGOs · sorted alphabetically by country');
+
+  // Build sorted country list for this phase
+  const countries = Object.entries(NGO_DATA)
+    .filter(([, data]) => data.phase === ph)
+    .sort(([a], [b]) => a.localeCompare(b));
+
+  const grid = document.getElementById('ngo-modal-grid');
+  grid.innerHTML = countries.map(([country, data]) => {
+    // Sort NGOs: non-Labdoo first, then Labdoo
+    const nonLabdoo = data.ngos.filter(n => !n.name.toLowerCase().startsWith('labdoo'))
+      .sort((a, b) => (lang==='cn'?a.name_cn:a.name).localeCompare(lang==='cn'?b.name_cn:b.name));
+    const labdoos = data.ngos.filter(n => n.name.toLowerCase().startsWith('labdoo'))
+      .sort((a, b) => (lang==='cn'?a.name_cn:a.name).localeCompare(lang==='cn'?b.name_cn:b.name));
+    const sorted = [...nonLabdoo, ...labdoos];
+
+    const ngoRows = sorted.map(ngo => {
+      const name = lang === 'cn' ? ngo.name_cn : ngo.name;
+      const url = ngo.url && ngo.url !== '' ? ngo.url : null;
+      const href = url ? (url.startsWith('http') ? url : 'https://' + url) : null;
+      return `<div class="modal-ngo-item">
+        <span class="modal-ngo-dot" style="background:${col}"></span>
+        <span class="modal-ngo-name">${name}</span>
+        ${href ? `<a class="modal-ngo-link" href="${href}" target="_blank" rel="noopener">↗</a>` : ''}
+      </div>`;
+    }).join('');
+
+    return `<div class="modal-country-card">
+      <div class="modal-country-name" style="color:${col}">${country}</div>
+      ${ngoRows}
+    </div>`;
+  }).join('');
+
+  document.getElementById('ngo-modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeNgoModal() {
+  document.getElementById('ngo-modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function handleModalOverlayClick(e) {
+  if (e.target === document.getElementById('ngo-modal-overlay')) closeNgoModal();
+}
+
+// Escape key closes modal
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeNgoModal(); });
+
 // ═══════════════════════════════════════════
 // BOOT
 // ═══════════════════════════════════════════
 renderUI();
+updateNgoChip();
 initMap();
 </script>
 </body>
