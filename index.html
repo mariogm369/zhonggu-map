@@ -14,6 +14,7 @@
   --p1:#22c55e;--p1-glow:rgba(34,197,94,0.22);
   --p2:#eab308;--p2-glow:rgba(234,179,8,0.22);
   --p3:#3b82f6;--p3-glow:rgba(59,130,246,0.22);
+  --ps:#ec4899;--ps-glow:rgba(236,72,153,0.22);
 }
 html,body{background:var(--bg);color:var(--text-primary);font-family:'Inter',sans-serif;min-height:100vh}
 body{display:flex;flex-direction:column;align-items:center;padding:48px 32px 72px}
@@ -45,9 +46,12 @@ body{display:flex;flex-direction:column;align-items:center;padding:48px 32px 72p
 .phase-btn.active .btn-num,.phase-btn.active .btn-sep,.phase-btn.active .btn-desc{color:#000}
 #btn-clear{padding:11px 22px;border-radius:100px;font-size:12px;font-family:'Inter',sans-serif;cursor:pointer;transition:all 0.22s;background:transparent;border:1px solid var(--border);color:var(--text-muted);-webkit-tap-highlight-color:transparent}
 #btn-clear:hover{border-color:var(--border2);color:var(--text-secondary)}
+#btn-sister{padding:11px 22px;border-radius:100px;font-size:12px;font-family:'Inter',sans-serif;cursor:pointer;transition:all 0.22s;background:transparent;border:1px solid rgba(236,72,153,0.4);color:rgba(236,72,153,0.7);-webkit-tap-highlight-color:transparent}
+#btn-sister:hover{border-color:var(--ps);color:var(--ps)}
+#btn-sister.active{background:var(--ps);color:#fff;border-color:var(--ps);box-shadow:0 4px 20px var(--ps-glow)}
 
 /* ── Map frame ── */
-#map-frame{width:100%;max-width:1100px;background:var(--surface);border:1px solid var(--border);border-radius:20px;overflow:hidden;position:relative;box-shadow:0 0 0 1px rgba(255,255,255,0.03),0 40px 100px rgba(0,0,0,0.7),inset 0 1px 0 rgba(255,255,255,0.04);touch-action:none}
+#map-frame{width:100%;max-width:1100px;background:var(--surface);border:1px solid var(--border);border-radius:20px;overflow:hidden;position:relative;box-shadow:0 0 0 1px rgba(255,255,255,0.03),0 40px 100px rgba(0,0,0,0.7),inset 0 1px 0 rgba(255,255,255,0.04);touch-action:none}@media(max-width:767px){#map-frame{touch-action:pan-y pinch-zoom}}
 #hover-chip{position:absolute;top:16px;right:16px;z-index:20;background:rgba(0,0,0,0.82);backdrop-filter:blur(16px);border:1px solid var(--border2);border-radius:10px;padding:8px 14px;min-width:155px;pointer-events:none}
 #ngo-chip{position:absolute;top:16px;left:16px;z-index:20;background:rgba(0,0,0,0.82);backdrop-filter:blur(16px);border:1px solid var(--border2);border-radius:10px;padding:8px 14px;pointer-events:auto;cursor:pointer;transition:border-color 0.2s}
 #ngo-chip-label{font-size:9px;text-transform:uppercase;letter-spacing:0.16em;color:#aaa;margin-bottom:3px}
@@ -58,7 +62,7 @@ body{display:flex;flex-direction:column;align-items:center;padding:48px 32px 72p
 #hover-chip-label{font-size:9px;text-transform:uppercase;letter-spacing:0.16em;color:#aaa;margin-bottom:3px}
 #hover-chip-name{font-size:12px;font-weight:500;color:var(--text-secondary);text-align:right;transition:color 0.2s}
 #map-svg-wrap{width:100%;display:block;line-height:0}
-#map-svg-wrap svg{display:block;width:100%;touch-action:none}
+#map-svg-wrap svg{display:block;width:100%;touch-action:none}@media(max-width:767px){#map-svg-wrap svg{touch-action:pinch-zoom}}
 
 /* ── Desktop info card ── */
 #info-card{position:absolute;bottom:20px;left:20px;z-index:30;background:rgba(4,4,4,0.94);backdrop-filter:blur(24px);border:1px solid var(--border2);border-radius:16px;padding:20px 22px 18px;min-width:260px;max-width:310px;max-height:72vh;overflow-y:auto;opacity:0;transform:translateY(10px);pointer-events:none;transition:opacity 0.32s ease,transform 0.32s ease;scrollbar-width:thin;scrollbar-color:#555 transparent}
@@ -332,6 +336,7 @@ body{display:flex;flex-direction:column;align-items:center;padding:48px 32px 72p
     <span class="btn-sep">·</span>
     <span class="btn-desc" id="btn3-desc"></span>
   </button>
+  <button id="btn-sister" onclick="toggleSisterCities()">Sister Cities</button>
   <button id="btn-clear" onclick="resetAll()"></button>
 </div>
 
@@ -563,6 +568,7 @@ const ALIASES = {
 let lang = 'en';
 let activePhase = null;
 let svgG, zoomBehavior, svgEl, projFn, annotationsG;
+let programmaticZoom = false;
 let selectedCountry = null;
 
 // ═══════════════════════════════════════════
@@ -577,6 +583,7 @@ function setLang(l) {
   document.documentElement.lang = l==='cn' ? 'zh-CN' : 'en';
   renderUI();
   updateMobileBar();
+  document.getElementById('btn-sister').textContent = lang==='cn' ? '友好城市' : 'Sister Cities';
   if (document.getElementById('mobile-sheet').classList.contains('open')) { closeMobileSheet(); openMobileSheet(); }
   // Re-render card if open
   if (selectedCountry) {
@@ -601,6 +608,8 @@ function renderUI() {
   document.getElementById('btn3-num').textContent = C.p3num;
   document.getElementById('btn3-desc').textContent = C.p3desc;
   document.getElementById('btn-clear').textContent = C.clear;
+  // Sister cities button label
+  document.getElementById('btn-sister').textContent = lang==='cn' ? '友好城市' : 'Sister Cities';
   document.getElementById('hover-chip-label').textContent = C.hover;
   // NGO chip
   updateNgoChip();
@@ -643,6 +652,46 @@ function getPhaseForCountry(name) {
   return NGO_DATA[r]?.phase || null;
 }
 
+
+const SISTER_COLOR = '#ec4899';
+const SISTER_GLOW = 'rgba(236,72,153,0.22)';
+
+const SISTER_CITIES = [
+  { city: "Hamburg",               country: "Germany",      phase: 3, ngos: ["Labdoo","AfB Social & Green IT"] },
+  { city: "Casablanca",            country: "Morocco",      phase: 2, ngos: ["Close the Gap","Computer Aid","Labdoo"] },
+  { city: "Jeollanam-do Province", country: "South Korea",  phase: 3, ngos: ["Labdoo","Good Neighbors"] },
+  { city: "Santiago de Cuba",      country: "Cuba",         phase: 2, ngos: ["Labdoo","Viva La Educación"] },
+  { city: "London (Financial City)",country:"United Kingdom",phase:3, ngos: ["Labdoo","Computer Aid UK"] },
+  { city: "Nagasaki Prefecture",   country: "Japan",        phase: 3, ngos: ["Labdoo","Lights On Children"] },
+  { city: "KwaZulu-Natal",         country: "South Africa", phase: 2, ngos: ["Close the Gap","Computer Aid","Labdoo","SchoolNet SA"] },
+  { city: "Guayaquil",             country: "Ecuador",      phase: 2, ngos: ["Labdoo","Tandana Foundation"] },
+  { city: "Valparaíso",            country: "Chile",        phase: 2, ngos: ["Labdoo","Kyklos"] },
+  { city: "Oslo",                  country: "Norway",       phase: 3, ngos: ["Labdoo","Redd Barna (Save the Children)"] },
+  { city: "East Java Province",    country: "Indonesia",    phase: 2, ngos: ["Labdoo","YCAB Foundation"] },
+  { city: "Quebec Province",       country: "Canada",       phase: 3, ngos: ["Labdoo","Computers for Schools Plus (CFS+)"] },
+  { city: "Bangkok",               country: "Thailand",     phase: 2, ngos: ["Labdoo","Mirror Foundation"] },
+  { city: "Sofia",                 country: "Bulgaria",     phase: 2, ngos: ["Labdoo","ITAD Bulgaria"] },
+];
+
+// CN sister city names
+const SISTER_CITIES_CN = [
+  { city: "汉堡",         country: "德国",   phase: 3, ngos: ["Labdoo","AfB Social & Green IT"] },
+  { city: "卡萨布兰卡",   country: "摩洛哥", phase: 2, ngos: ["Close the Gap","Computer Aid","Labdoo"] },
+  { city: "全罗南道",     country: "韩国",   phase: 3, ngos: ["Labdoo","Good Neighbors"] },
+  { city: "圣地亚哥-德古巴", country: "古巴", phase: 2, ngos: ["Labdoo","Viva La Educación"] },
+  { city: "伦敦（金融城）", country: "英国", phase: 3, ngos: ["Labdoo","Computer Aid UK"] },
+  { city: "长崎县",       country: "日本",   phase: 3, ngos: ["Labdoo","Lights On Children"] },
+  { city: "夸祖鲁-纳塔尔", country: "南非",  phase: 2, ngos: ["Close the Gap","Computer Aid","Labdoo","SchoolNet SA"] },
+  { city: "瓜亚基尔",     country: "厄瓜多尔", phase: 2, ngos: ["Labdoo","Tandana Foundation"] },
+  { city: "瓦尔帕莱索",   country: "智利",   phase: 2, ngos: ["Labdoo","Kyklos"] },
+  { city: "奥斯陆",       country: "挪威",   phase: 3, ngos: ["Labdoo","Redd Barna（拯救儿童）"] },
+  { city: "东爪哇省",     country: "印度尼西亚", phase: 2, ngos: ["Labdoo","YCAB Foundation"] },
+  { city: "魁北克省",     country: "加拿大", phase: 3, ngos: ["Labdoo","Computers for Schools Plus (CFS+)"] },
+  { city: "曼谷",         country: "泰国",   phase: 2, ngos: ["Labdoo","Mirror Foundation"] },
+  { city: "索菲亚",       country: "保加利亚", phase: 2, ngos: ["Labdoo","ITAD Bulgaria"] },
+];
+
+let sisterActive = false;
 const NGO_COUNTS = { 1: 9, 2: 19, 3: 10 };
 const PHASE_COLORS = { 1:'#22c55e', 2:'#eab308', 3:'#3b82f6' };
 const PHASE_HOVER  = { 1:'#4ade80', 2:'#facc15', 3:'#60a5fa' };
@@ -863,11 +912,20 @@ function resetAll() {
   updateNgoChip();
   updateMobileBar();
   closeMobileSheet();
+  // Deactivate sister if active
+  if (sisterActive) {
+    sisterActive = false;
+    document.getElementById('btn-sister').classList.remove('active');
+    [1,2,3].forEach(n => { document.getElementById('btn'+n).style.opacity = ''; });
+  }
 }
 
 function resetZoom() {
   if(!svgEl||!zoomBehavior)return;
-  svgEl.transition().duration(500).ease(d3.easeCubicOut).call(zoomBehavior.transform,d3.zoomIdentity);
+  programmaticZoom = true;
+  svgEl.transition().duration(500).ease(d3.easeCubicOut)
+    .call(zoomBehavior.transform, d3.zoomIdentity)
+    .on('end', () => { programmaticZoom = false; });
 }
 
 function zoomToCountry(name) {
@@ -876,10 +934,15 @@ function zoomToCountry(name) {
   if(!el)return;
   const b=el.getBBox();
   const W=+svgEl.attr('width'),H=+svgEl.attr('height');
-  const scale=Math.min(10,0.72/Math.max(b.width/W,b.height/H));
+  // On mobile use a slightly smaller scale so country fits within the short viewport
+  const maxScale = window.innerWidth <= 767 ? 7 : 10;
+  const scale=Math.min(maxScale,0.72/Math.max(b.width/W,b.height/H));
   const tx=W/2-scale*(b.x+b.width/2);
   const ty=H/2-scale*(b.y+b.height/2);
-  svgEl.transition().duration(700).ease(d3.easeCubicInOut).call(zoomBehavior.transform,d3.zoomIdentity.translate(tx,ty).scale(scale));
+  programmaticZoom = true;
+  svgEl.transition().duration(700).ease(d3.easeCubicInOut)
+    .call(zoomBehavior.transform,d3.zoomIdentity.translate(tx,ty).scale(scale))
+    .on('end', () => { programmaticZoom = false; });
 }
 
 // ═══════════════════════════════════════════
@@ -904,7 +967,33 @@ async function initMap() {
     .style('display','block');
 
   zoomBehavior=d3.zoom().scaleExtent([1,14])
-    .on('zoom',e=>{svgG.attr('transform',e.transform);annotationsG.attr('transform',e.transform);});
+    .filter(function(event) {
+      // On mobile: allow pinch-zoom (2 fingers) and programmatic zoom, block single-finger pan
+      if (window.innerWidth <= 767) {
+        if (programmaticZoom) return true; // always allow code-triggered zoom
+        if (event.type === 'touchstart' || event.type === 'touchmove') {
+          return event.touches && event.touches.length >= 2;
+        }
+        if (event.type === 'wheel') return true;
+        return false;
+      }
+      return !event.ctrlKey || event.type === 'wheel';
+    })
+    .on('zoom',e=>{
+      // On mobile: lock pan for finger gestures, but allow full transform for code
+      if (window.innerWidth <= 767 && !programmaticZoom) {
+        const t = e.transform;
+        const W = +svgEl.attr('width'), H = +svgEl.attr('height');
+        const cx = W/2 * (1 - t.k);
+        const cy = H/2 * (1 - t.k);
+        const locked = d3.zoomIdentity.translate(cx, cy).scale(t.k);
+        svgG.attr('transform', locked);
+        annotationsG.attr('transform', locked);
+      } else {
+        svgG.attr('transform',e.transform);
+        annotationsG.attr('transform',e.transform);
+      }
+    });
   svgEl.call(zoomBehavior);
 
   svgG=svgEl.append('g');
@@ -1127,6 +1216,126 @@ function closeMobileSheet() {
   });
 })();
 
+
+// ═══════════════════════════════════════════
+// SISTER CITIES
+// ═══════════════════════════════════════════
+function toggleSisterCities() {
+  sisterActive = !sisterActive;
+  const btn = document.getElementById('btn-sister');
+  if (sisterActive) {
+    btn.classList.add('active');
+    // Dim phase buttons slightly
+    [1,2,3].forEach(n => {
+      const b = document.getElementById('btn'+n);
+      b.style.opacity = '0.4';
+    });
+    highlightSisterCountries();
+    openSisterModal();
+  } else {
+    btn.classList.remove('active');
+    [1,2,3].forEach(n => {
+      document.getElementById('btn'+n).style.opacity = '';
+    });
+    // Restore map to phase or default
+    animateAll();
+    if (annotationsG) annotationsG.selectAll('*').remove();
+    if (activePhase !== null) {
+      animateAll();
+      drawAnnotations();
+    }
+  }
+}
+
+function highlightSisterCountries() {
+  if (!svgG) return;
+  const sisterCountries = new Set(SISTER_CITIES.map(s => s.country));
+  svgG.selectAll('path.country')
+    .transition().duration(520).ease(d3.easeCubicOut)
+    .attr('fill', function() {
+      const name = resolveCountry(d3.select(this).attr('data-name'));
+      if (sisterCountries.has(name)) return SISTER_COLOR;
+      return '#141414';
+    });
+  // Add city labels as annotations
+  if (annotationsG) annotationsG.selectAll('*').remove();
+  const usedCentroids = {};
+  SISTER_CITIES.forEach(s => {
+    const centroid = CENTROIDS[s.country];
+    if (!centroid) return;
+    const off = LABEL_OFF[s.country] || [20, -10, 'start'];
+    const [px, py] = projFn(centroid);
+    // Offset slightly if same country used twice
+    const key = s.country;
+    const extra = usedCentroids[key] || 0;
+    usedCentroids[key] = extra + 1;
+    const tx = px + off[0], ty = py + off[1] + extra * 8;
+
+    annotationsG.append('line')
+      .attr('x1',px).attr('y1',py).attr('x2',tx).attr('y2',ty)
+      .attr('stroke',SISTER_COLOR).attr('stroke-width',0.5).attr('stroke-opacity',0)
+      .attr('stroke-dasharray','2,2')
+      .transition().delay(60).duration(400).attr('stroke-opacity',0.4);
+
+    annotationsG.append('circle').attr('cx',px).attr('cy',py).attr('r',2)
+      .attr('fill',SISTER_COLOR).attr('opacity',0)
+      .transition().delay(60).duration(400).attr('opacity',0.8);
+
+    const g = annotationsG.append('g').attr('opacity',0);
+    g.append('text')
+      .attr('x', tx+(off[2]==='start'?3:-3)).attr('y',ty)
+      .attr('text-anchor',off[2]).attr('dominant-baseline','middle')
+      .attr('fill','rgba(255,255,255,0.8)')
+      .style('font-size','5.5px').style('font-style','italic')
+      .style('font-family','Noto Sans SC,Inter,sans-serif').style('pointer-events','none')
+      .text(lang==='cn' ? SISTER_CITIES_CN[SISTER_CITIES.indexOf(s)].city : s.city);
+    g.transition().delay(100).duration(450).attr('opacity',1);
+  });
+}
+
+// Sister Cities Modal
+function openSisterModal() {
+  const C = COPY[lang];
+  const list = lang === 'cn' ? SISTER_CITIES_CN : SISTER_CITIES;
+  const PHASE_COLORS_MAP = {1:'#22c55e', 2:'#eab308', 3:'#3b82f6'};
+  const PHASE_LABELS = lang==='cn'
+    ? {1:'第一阶段',2:'第二阶段',3:'第三阶段'}
+    : {1:'Phase 1',2:'Phase 2',3:'Phase 3'};
+
+  // Sort: Phase 2 first (more), then Phase 3
+  const sorted = [...list].sort((a,b) => a.phase - b.phase || a.country.localeCompare(b.country));
+
+  document.getElementById('ngo-modal-title').textContent =
+    lang==='cn' ? '🌸 友好城市' : '🌸 Sister Cities';
+  document.getElementById('ngo-modal-meta').textContent =
+    lang==='cn' ? `${list.length} 个城市 · 按阶段排列` : `${list.length} cities · sorted by phase`;
+
+  const grid = document.getElementById('ngo-modal-grid');
+  grid.style.gridTemplateColumns = 'repeat(auto-fill,minmax(240px,1fr))';
+  grid.innerHTML = sorted.map(s => {
+    const phCol = PHASE_COLORS_MAP[s.phase];
+    const phLabel = PHASE_LABELS[s.phase];
+    const ngoRows = s.ngos.map(ngo =>
+      `<div class="modal-ngo-item">
+        <span class="modal-ngo-dot" style="background:${SISTER_COLOR}"></span>
+        <span class="modal-ngo-name">${ngo}</span>
+      </div>`
+    ).join('');
+    return `<div class="modal-country-card" style="border-color:rgba(236,72,153,0.2)">
+      <div class="modal-country-name" style="color:${SISTER_COLOR};border-color:rgba(236,72,153,0.15)">
+        ${s.city}
+        <span style="font-size:9px;font-weight:400;color:${phCol};margin-left:6px;font-style:normal;font-family:Inter,sans-serif">${phLabel}</span>
+      </div>
+      <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px">${s.country}</div>
+      <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);margin-bottom:6px">${lang==='cn'?'相关机构':'NGO Partners'} (${s.ngos.length})</div>
+      ${ngoRows}
+    </div>`;
+  }).join('');
+
+  document.getElementById('ngo-modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
 // ═══════════════════════════════════════════
 // NGO LIST MODAL
 // ═══════════════════════════════════════════
@@ -1180,6 +1389,15 @@ function openNgoModal() {
 function closeNgoModal() {
   document.getElementById('ngo-modal-overlay').classList.remove('open');
   document.body.style.overflow = '';
+  // If closed from sister modal, deactivate sister
+  if (sisterActive) {
+    sisterActive = false;
+    document.getElementById('btn-sister').classList.remove('active');
+    [1,2,3].forEach(n => { document.getElementById('btn'+n).style.opacity = ''; });
+    animateAll();
+    if (annotationsG) annotationsG.selectAll('*').remove();
+    if (activePhase !== null) { animateAll(); drawAnnotations(); }
+  }
 }
 
 function handleModalOverlayClick(e) {
@@ -1195,6 +1413,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeNgoModa
 renderUI();
 updateNgoChip();
 updateMobileBar();
+document.getElementById('btn-sister').textContent = 'Sister Cities';
 initMap();
 </script>
 </body>
